@@ -267,7 +267,7 @@ class _EmailLogInState extends State<EmailLogIn> {
                           onPressed: (){
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => EmailSignUp()),
+                              MaterialPageRoute(builder: (context) => SignUpScreen()),
                             );
                           },
                            child: const Text('Sign Up',

@@ -66,7 +66,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
             title: Text('Payment Method'),
         ),
         body: SingleChildScrollView(
-        child: Text('Thawani Screen goes here '),
+          child: Container(
+            padding: EdgeInsets.only(top: 50.0),
+            alignment: Alignment.center,
+            child: Text(
+              'Thawani Screen goes here',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30.0,
+              ),
+            ),
+          ),
         ),
         );
       }

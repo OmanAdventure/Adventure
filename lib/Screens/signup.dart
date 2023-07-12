@@ -50,7 +50,7 @@ class SignUp extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EmailSignUp()),
+                      MaterialPageRoute(builder: (context) => SignUpScreen()),
                     );
                   },
                 )),
@@ -68,7 +68,6 @@ class SignUp extends StatelessWidget {
                 text: 'Sign In With Email',
                 icon: Icons.email,
                 onPressed: () {
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => EmailLogIn()),

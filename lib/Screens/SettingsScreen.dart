@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
 import 'SettingsScreen.dart';
 import 'PaymentMethodScreen.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() => runApp(
     Settings()
@@ -97,9 +98,8 @@ class _MySettingsState extends  State<settingsState> {
               context,
               text: 'Share the App with a Friend',
               icon: Icons.share_outlined,
-              onTap: () {
-                // Perform share action
-              },
+
+              onTap: () => shareApp(),
             ),
             _buildButton(
               context,
@@ -164,4 +164,14 @@ class _MySettingsState extends  State<settingsState> {
 
 
   } // --
+
+// share the app with a friend function
+  void shareApp() async {
+    print("object");
+    const String appLink = 'https://play.google.com/store/apps/details?id=com.example.myapp';
+    const String message = 'Check out my new app: $appLink';
+    await Share.share(message, subject: 'Share App');
+  }
+
+
 }

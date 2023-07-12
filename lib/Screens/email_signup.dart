@@ -1,297 +1,318 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:untitled/Screens/PhotoContainerScreen.dart';
-import 'PhotoContainerScreen.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:sign_button/sign_button.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'adventures.dart';
+import 'package:uuid/uuid.dart';
 
-
-//import 'home.dart';
-
-class EmailSignUp extends StatefulWidget {
-  @override
-  _EmailSignUpState createState() => _EmailSignUpState();
+/// Initialize Firebase
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const SignUpForm());
 }
 
-class _EmailSignUpState extends State<EmailSignUp> {
-  bool isLoading = false;
-  final _formKey = GlobalKey<FormState>();
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  DatabaseReference dbRef =
-      FirebaseDatabase.instance.reference().child("Users");
-  TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
-  // TextEditingController genderController = TextEditingController();
-
-  // Initial Selected Value
-  String genderDropdown = 'Male';
-  // List of items in our dropdown menu
-  var genderList = [
-    'Male',
-    'Female',
-  ];
-
+class SignUpForm extends StatelessWidget {
+  const SignUpForm({Key? key}) : super(key: key);
+// This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/signUpScreenImage.png'),
-            // Try This too --> assets/images/LoginImage.png
-            fit: BoxFit.cover,
-          )
+    return MaterialApp(
+      theme: ThemeData(
+        // primarySwatch: Colors.teal,
       ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Container(
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.transparent,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(23),
-            child: ListView(
-              children: <Widget>[
-                const SizedBox(height: 30,),
-                Form(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding:  const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        child: TextFormField(
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                          decoration: const InputDecoration(
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white
-                                  )
-                              ),
-                              labelText: 'Email',
-                              labelStyle: TextStyle(fontSize: 15,
-                                  color: Colors.white)
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20,),
-                      DecoratedBox(
-                          decoration: BoxDecoration(
-                              color:Color(0xFFE0E0E0), //background color of dropdown button
-                              border: Border.all(color: Colors.transparent, width:3), //border of dropdown button
-                              borderRadius: BorderRadius.circular(20), //border raiuds of dropdown button
-                              boxShadow: const <BoxShadow>[ //apply shadow on Dropdown button
-                                BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.02), //shadow for button
-                                    blurRadius: 5) //blur radius of shadow
-                              ]
-                          ),
-
-                          child:Padding(
-                              padding: const EdgeInsets.only(left:20, right:20),
-                              child:DropdownButton(
-                                value: genderDropdown,
-                                focusColor: Colors.white,
-                                items: genderList.map((String genderList) {
-                                  return DropdownMenuItem(
-                                    value: genderList,
-                                    child: Text(genderList, textAlign: TextAlign.center),
-                                  );
-                                }).toList(),
-
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    genderDropdown = newValue!;
-                                  });
-                                },
-                                icon: const Padding( //Icon at tail, arrow bottom is default icon
-                                    padding: EdgeInsets.only(left:20),
-                                    child:Icon(Icons.arrow_circle_down_sharp, color: Colors.teal,)
-                                ),
-                                iconEnabledColor: Colors.white, //Icon color
-                                style: const TextStyle(  //te
-                                    color: Colors.black, //Font color
-                                    fontSize: 15 //font size on dropdown button
-                                ),
-                                dropdownColor: Colors.white, //dropdown background color
-                                underline: Container(), //remove underline
-                                isExpanded: true, //make true to make width 100%
-                              )
-                          )
-                      ),
-
-                      TextFormField(
-                        obscureText: true,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                        decoration: const InputDecoration(
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.white
-                                )
-                            ),
-                            labelText: 'Password',
-                            labelStyle: TextStyle(fontSize: 15,
-                                color: Colors.white)
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:  const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                  child: TextFormField(
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white
-                            )
-                        ),
-                        labelText: 'Phone',
-                        labelStyle: TextStyle(fontSize: 15,
-                            color: Colors.white)
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: MaterialButton(
-                    onPressed: (){},
-                    color: Colors.teal,
-                    elevation: 0,
-                    minWidth: 350,
-                    height: 60,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50)
-                    ),
-                    child:  const Text('SIGN UP',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'SFUIDisplay',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: MaterialButton(
-                    onPressed: (){},
-                    color:Color(0xFFE0E0E0),
-                    elevation: 0,
-                    minWidth: 350,
-                    height: 60,
-                    textColor: Colors.teal,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        side: BorderSide(color: Colors.transparent)
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Icon(Icons.account_circle_sharp),
-                        Text('Sign up with Google',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'SFUIDisplay'
-                          ),)
-                      ],
-                    ),
-                  ),
-                ),
-
-
-                Padding(
-                  padding: EdgeInsets.only(top: 30),
-                  child: Center(
-                    child: RichText(
-                      text: TextSpan(
-                          children: [
-                            TextSpan(
-                                text: "Don't have an account?",
-                                style: TextStyle(
-                                  fontFamily: 'SFUIDisplay',
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )
-                            ),
-                            TextSpan(
-                                text: "sign up",
-                                style: TextStyle(
-                                  fontFamily: 'SFUIDisplay',
-                                  color: Color(0xffff2d55),
-                                  fontSize: 15,
-                                )
-                            )
-                          ]
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+      home:  SignUpScreen(),
     );
   }
+}
 
-  void registerToFb() {
-    firebaseAuth
-        .createUserWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text)
-        .then((result) {
-      dbRef.child(result.user!.uid).set({
-        "email": emailController.text,
-        "age": ageController.text,
-        "name": nameController.text
-      }).then((res) {
-        isLoading = false;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => adventuresfunc(uid: result.user!.uid)),
-        );
-      });
-    }).catchError((err) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Error"),
-              content: Text(err.message),
-              actions: [
-                TextButton(
-                  child: const Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          });
-    });
-  }
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({Key? key}) : super(key: key);
+  @override
+  _SignUpScreenState createState() => _SignUpScreenState();
+}
+
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _genderOptions = ['Male', 'Female'];
+  String? _selectedGender;
+  bool _isSubmitting = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    ageController.dispose();
   }
-}
+
+  // ---------------------- To Firebase ----------------------
+
+  Future<void> _signUp() async {
+    setState(() {
+  //    _isSubmitting = true;
+    });
+    // ----------- Validation ----------------------
+
+
+    if (_formKey.currentState!.validate()) {
+     setState(() {
+        _isSubmitting = true;
+      _errorMessage = null;
+     });
+
+      // Validate the required text fields
+
+
+      try {
+        // Generate a UUID
+        final uuid = Uuid().v4();
+
+        // Increment the User count
+        final doc = await FirebaseFirestore.instance.collection('user_count')
+            .doc('count')
+            .get();
+        final count = doc.exists ? doc.data()!['count'] as int : 0;
+        await FirebaseFirestore.instance.collection('user_count')
+            .doc('count')
+            .set({'count': count + 1});
+
+        // Add the User data to Firestore with the UUID and count
+        final userData = {
+
+          _emailController.text == '' ||
+              _passwordController.text == '' ||
+              _selectedGender == null ||
+              _phoneNumberController.text == ''
+                  'AccountCreationDate': DateTime.now(),
+          'UserID': uuid, // add the UUID to the map
+          'User Count': count + 1,
+          'User Email': _emailController.text,
+          'User Gender': _selectedGender,
+          'Adventure Description': _passwordController.text,
+          'Phone Number': _phoneNumberController.text,
+
+        };
+        await FirebaseFirestore.instance
+            .collection('users')
+            .add(userData as Map<String, dynamic>);
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(
+                'You have registered your account successfully')));
+
+        setState(() {
+          _isSubmitting = false;
+        });
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdventuresContainerScreen(),
+          ),
+        );
+      } catch (error) {
+        print(error);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('iDiscover', textAlign: TextAlign.center),
+          backgroundColor: Colors.teal,
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: Container(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/signUpScreenImage.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: Colors.white,
+                                ),
+                                child:
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    labelText: 'Email',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your email';
+                                    }
+                                    if (!value.contains('@')) {
+                                      return 'Please enter a valid email address';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: Colors.white,
+                                ),
+                                child: DropdownButtonFormField<String>(
+                                  value: _selectedGender,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      _selectedGender = newValue;
+                                    });
+                                  },
+                                  items: _genderOptions
+                                      .map((option) =>
+                                      DropdownMenuItem(
+                                        value: option,
+                                        child: Text(option),
+                                      ))
+                                      .toList(),
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    labelText: 'Gender',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select your gender';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: Colors.white,
+                                ),
+                                child: TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    labelText: 'Password',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a password';
+                                    }
+                                    if (value.length < 6) {
+                                      return 'Password must be at least 6 characters long';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: Colors.white,
+                                ),
+                                child: TextFormField(
+                                  controller: _phoneNumberController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    labelText: 'Phone Number',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 10),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your phone number';
+                                    }
+                                    if (value.length != 8) {
+                                      return 'Phone number must be 8 digits';
+                                    }
+                                    // Additional phone number validation if needed
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              ElevatedButton(
+                                onPressed: _signUp,
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.teal,
+                                  padding: const EdgeInsets.fromLTRB(
+                                      160, 16, 160, 16),
+                                ),
+                                child: const Text(' Sign Up '),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_isSubmitting)
+                      Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    if (_errorMessage != null)
+                      Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: Center(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+  }
+
+
+

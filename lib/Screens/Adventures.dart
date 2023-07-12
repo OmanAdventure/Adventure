@@ -11,85 +11,47 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'email_login.dart';
 import 'email_signup.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'CustomerAdventureForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 //import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 
-
 class AdventuresContainerScreen extends StatefulWidget {
-  AdventuresContainerScreen();
   @override
-  _Screen2State createState() => _Screen2State();
+  _AdventuresContainerScreenState createState() =>
+      _AdventuresContainerScreenState();
 }
 
-class _Screen2State extends State<AdventuresContainerScreen> {
- // for firebase data fetching
+class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
   late Stream<QuerySnapshot> _adventuresStream;
- // for cashing the data after fetching them
-
   late List<Map<String, dynamic>> _cachedAdventures = [];
   late SharedPreferences _prefs;
 
   @override
   void initState() {
     super.initState();
-    _adventuresStream = FirebaseFirestore.instance.collection('adventure').orderBy('AdventureCreationDate', descending: true).snapshots();
+    _adventuresStream = FirebaseFirestore.instance
+        .collection('adventure')
+        .orderBy('AdventureCreationDate', descending: true)
+        .snapshots();
 
-    // to fetch the data
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-
-        // Caching
         _initPrefs();
         _prefs = prefs;
 
-        // Check if there is data stored in shared_preferences
         final String? adventuresJson = prefs.getString('adventures');
         if (adventuresJson != null) {
           final List<dynamic> adventuresData = jsonDecode(adventuresJson);
-          _cachedAdventures = adventuresData.map((adventureData) {
-            Timestamp creationDate = adventureData['AdventureCreationDate'];
-            return ReusableCard(
-              AdventureCreationDate: creationDate.toDate(),
-              gender: adventureData['Gender'],
-              age: adventureData['Age'],
-              StartDate: adventureData['Start Date'],
-              EndDate: adventureData['End tDate'],
-              StartTime: adventureData['Start Time'],
-              EndTime: adventureData['End Time'],
-              uuid: '',
-              adven_provider_Name: '',
-              count: '',
-              type_of_Adventure: '',
-              Phone_Number: '',
-              difficultyLevel: '',
-              adventureNature: '',
-              freeAdventure: '',
-              onlyFamilies: '',
-              price: '',
-              max_number_of_Participants: '',
-              googleMapsLink: adventureData['googleMapsLink'],
-              adventureDescription: '',
-              locationName: '',
-            );
-          }).cast<Map<String, dynamic>>().toList();
+          _cachedAdventures = adventuresData
+              .map((adventureData) => Map<String, dynamic>.from(adventureData))
+              .toList();
         }
       });
     });
-
-
-
   }
 
-
-  // Cashing
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
   }
@@ -97,19 +59,10 @@ class _Screen2State extends State<AdventuresContainerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:const Color.fromRGBO(224,222,223,1),
-      appBar:AppBar(
-        centerTitle:true,
-        backgroundColor:Colors.teal,
-        title:Text(
-          'OmanAdventure',
-          style:GoogleFonts.satisfy(
-            fontSize:30,
-            fontWeight:FontWeight.bold,
-            fontStyle:FontStyle.normal,
-            color:Colors.white,
-          ),
-        ),
+      appBar: AppBar(
+        title: const Text('OmanAdventure'),
+        centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
       body: Container(
         padding: const EdgeInsets.all(2.0),
@@ -120,93 +73,84 @@ class _Screen2State extends State<AdventuresContainerScreen> {
                 stream: _adventuresStream,
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
-                    return Text('Something went wrong');
+                    return const Text('Something went wrong');
                   }
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const SizedBox(
                       height: 500,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        )
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     );
                   }
-                  if (snapshot.data!.size == 0) {
 
-                  return SizedBox(
-                    height: 500,
-                    child: Center(
+                  if (snapshot.data == null || snapshot.data!.size == 0) {
+                    return const SizedBox(
+                      height: 500,
+                      child: Center(
                         child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const <Widget>[
-                              Icon(Icons.cloud_sharp, color: Colors.teal, size: 90,),
-                              SizedBox(width: 8.0),
-                              Text('No adventures have been posted yet.')
-                            ])
-                    ),
-                  );
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.cloud_sharp, color: Colors.teal, size: 90),
+                            SizedBox(width: 8.0),
+                            Text('No adventures have been posted yet.'),
+                          ],
+                        ),
+                      ),
+                    );
                   }
-
-                  // Cache the snapshot data
-                  _prefs!.setString('adventures', snapshot.data!.docs.toString());
-                  // Save data to shared_preferences --- Cashing
-                  _prefs?.setString('adventures', jsonEncode(snapshot.data!.docs.map((DocumentSnapshot document) {
-                    final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                    print('--------------------cashed data -----------------');
-                    print(data);
-                    print('--------------------cashed data -----------------');
-                    return {
-                      'gender': data['Gender'],
-                      'age': data['Age'],
-                      'googleMapsLink': data['googleMapsLink'],
-                    };
-                  }).toList()));
 
                   return Column(
                     children: snapshot.data!.docs.map((DocumentSnapshot document) {
                       final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                      //To convert the Timestamp to a DateTime
+                      // Convert Timestamp to DateTime
                       final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
                       final DateTime creationDate = creationTimestamp.toDate();
 
                       return ReusableCard(
                         AdventureCreationDate: creationDate,
-                         gender: data['Gender'],
-                        age: data['Age '],
-                        StartDate: data['Start Date'],
-                        EndDate: data['End tDate'],
-                        StartTime: data['Start Time'],
-                        EndTime: data['End Time'],
-
-                        uuid: data['uuid'],
-                        adven_provider_Name: data['service_provider_Name'],
-                        count: data['count'],
-                        type_of_Adventure: data['Type of Adventure'],
-                        Phone_Number: data['Phone Number'],
-
-                        difficultyLevel: data['Level of Difficulty'],
-                        adventureNature: data['Adventure Nature '],
-                        freeAdventure: data['Is Free Adventure'],
-                        onlyFamilies: data['Is only family '],
-
-                        price: data['Price'],
-                        max_number_of_Participants: data['Max number of Participants'],
-                        googleMapsLink: data['googleMapsLink '],
-                        adventureDescription: data['Adventure Description'],
-                        locationName: data['The name of the location '],
-
-
+                        gender: data['Gender'] ?? '',
+                        age: data['Age '] ?? '',
+                        StartDate: data['Start Date'] ?? '',
+                        EndDate: data['End tDate'] ?? '',
+                        StartTime: data['Start Time'] ?? '',
+                        EndTime: data['End Time'] ?? '',
+                        uuid: data['uuid'] ?? '',
+                        adven_provider_Name: data['service_provider_Name'] ?? '',
+                        count: data['count'] ?? '',
+                        type_of_Adventure: data['Type of Adventure'] ?? '',
+                        Phone_Number: data['Phone Number'] ?? '',
+                        difficultyLevel: data['Level of Difficulty'] ?? '',
+                        adventureNature: data['Adventure Nature '] ?? '',
+                        freeAdventure: data['Is Free Adventure'] ?? '',
+                        onlyFamilies: data['Is only family '] ?? '',
+                        price: data['Price'] ?? '',
+                        max_number_of_Participants: data['Max number of Participants'] ?? '',
+                        googleMapsLink: data['googleMapsLink '] ?? '',
+                        adventureDescription: data['Adventure Description'] ?? '',
+                        locationName: data['The name of the location '] ?? '',
                       );
                     }).toList(),
                   );
                 },
-              ),
+              )
+
             ],
           ),
         ),
       ),
     );
+  }
+
+  Map<String, dynamic> _convertDocumentToJson(DocumentSnapshot document) {
+    final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+    // Convert Timestamp to milliseconds since Unix epoch
+    final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
+    final int milliseconds = creationTimestamp.millisecondsSinceEpoch;
+    data['AdventureCreationDate'] = milliseconds;
+    return data;
   }
 }
 
@@ -267,6 +211,7 @@ class ReusableCard extends StatelessWidget {
     required this.googleMapsLink,
     required this.locationName,
 
+
   });
 
   @override
@@ -286,9 +231,9 @@ class ReusableCard extends StatelessWidget {
                const Text('🐎', style: TextStyle(fontSize: 20)),
              //  const Icon(Icons.category_outlined, color: Colors.teal),
                const SizedBox(width: 5.0),
-               type_of_Adventure != null ? Text(type_of_Adventure) : Text(''),
+               type_of_Adventure != "" ? Text(type_of_Adventure) : Text(''),
                const Spacer(),
-               age != null ? Text(age) : Text(''),
+               age != "" ? Text(age) : Text(''),
              ],
            ),
            const SizedBox(height: 3),
@@ -297,8 +242,8 @@ class ReusableCard extends StatelessWidget {
              children: <Widget>[
                Icon(Icons.accessibility, color: Colors.teal),
                SizedBox(width: 5.0),
-               difficultyLevel != null ? Text(difficultyLevel) : Text(''),
-               onlyFamilies != null ? Text(onlyFamilies) : Text(''),
+               difficultyLevel != "" ? Text(difficultyLevel) : Text(''),
+               onlyFamilies != "" ? Text(onlyFamilies) : Text(''),
              ],
            ),
            Row(
@@ -306,9 +251,9 @@ class ReusableCard extends StatelessWidget {
              children: <Widget>[
                Icon(Icons.group, color: Colors.teal),
                SizedBox(width: 5.0),
-               adventureNature != null ? Text(adventureNature) : Text(''),
+               adventureNature != "" ? Text(adventureNature) : Text(''),
                Spacer(),
-               max_number_of_Participants != null ? Text(max_number_of_Participants) : Text(''),
+               max_number_of_Participants != "" ? Text(max_number_of_Participants) : Text(''),
              ],
            ),
            Row(
@@ -317,7 +262,7 @@ class ReusableCard extends StatelessWidget {
                Icon(Icons.group, color: Colors.teal),
                SizedBox(width: 5.0),
                Spacer(),
-               gender != null ? Text(gender) : Text(''),
+               gender != "" ? Text(gender) : Text(''),
              ],
            ),
            const SizedBox(height: 10),
@@ -326,7 +271,7 @@ class ReusableCard extends StatelessWidget {
              alignment: Alignment.centerLeft,
              //NameoftheHotel
              child: Text(
-               adven_provider_Name != null || adven_provider_Name.isEmpty ? adven_provider_Name : '',
+               adven_provider_Name != "" || adven_provider_Name.isEmpty ? adven_provider_Name : '',
                textAlign: TextAlign.left,
                style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 18),
              ),
@@ -337,7 +282,8 @@ class ReusableCard extends StatelessWidget {
              alignment: Alignment.centerLeft,
              //NameoftheHotel
              child: Text(
-               adventureDescription != null ? adventureDescription : '',
+
+               adventureDescription ?? '',
                textAlign: TextAlign.left,
                style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
              ),
@@ -362,7 +308,7 @@ class ReusableCard extends StatelessWidget {
                          color: Colors.black54),
                    ),
                    Text(
-                     StartDate != null ? StartDate : '',
+                     StartDate ?? '',
                      textAlign: TextAlign.left,
                      style: TextStyle(
                          fontWeight: FontWeight.normal,
@@ -378,7 +324,7 @@ class ReusableCard extends StatelessWidget {
                    Icon(Icons.watch_later, color: Colors.teal),
                    SizedBox(width: 1.0),
                    Text(
-                     StartTime != null ? StartTime : '',
+                     StartTime ?? '',
                      textAlign: TextAlign.left,
                      style: TextStyle(
                          fontWeight: FontWeight.normal,
@@ -420,7 +366,7 @@ class ReusableCard extends StatelessWidget {
                      width: 5.0,
                    ),
                    Text(
-                    EndDate != null ? EndDate : '',
+                    EndDate ?? '',
                      textAlign: TextAlign.left,
                      style: TextStyle(
                        fontWeight: FontWeight.normal,
@@ -442,7 +388,7 @@ class ReusableCard extends StatelessWidget {
                      width: 1.0,
                    ),
                    Text(
-                     EndTime != null ? EndTime : '',
+                     EndTime ?? '',
                      textAlign: TextAlign.left,
                      style: TextStyle(
                        fontWeight: FontWeight.normal,
@@ -474,7 +420,7 @@ class ReusableCard extends StatelessWidget {
              alignment: Alignment.centerLeft,
              //NameoftheHotel
              child: Text(
-               locationName != null ? locationName : '',
+               locationName ?? '',
                textAlign: TextAlign.left,
                style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
              ),
@@ -493,7 +439,7 @@ class ReusableCard extends StatelessWidget {
                    backgroundColor: Colors.transparent,
                  ),
                  child: Text(
-                   price != null ? price : '',
+                   price ?? '',
                    textAlign: TextAlign.left,
                    style: const TextStyle(
                      fontWeight: FontWeight.normal,
@@ -598,7 +544,7 @@ class ReusableCard extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EmailSignUp()),
+                MaterialPageRoute(builder: (context) => SignUpScreen()),
               );
             },
           ),
@@ -618,21 +564,7 @@ class ReusableCard extends StatelessWidget {
             width: 220.0,
           ),
         ),
-        Padding(
-        padding: const EdgeInsets.all(10.0),
-    child: SignInButtonBuilder(
-    text: 'Continue as a guest',
-    icon: Icons.arrow_forward,
-    onPressed: () {
-    Navigator.push(
-    context, MaterialPageRoute(builder: (context) => MyCustomForm()),
-    );  ///for logout
-      //Navigator.of(context, rootNavigator: true).pushReplacement(MaterialPageRoute(builder:(context)=>MyCustomForm()));
-    },
-      backgroundColor: Colors.purpleAccent,
-      width: 220.0,
-    ),
-        ),
+
               ],
           ),
     ),

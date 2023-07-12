@@ -47,7 +47,6 @@ class AdventureFormPage extends StatefulWidget {
   const AdventureFormPage({Key? key}) : super(key: key);
   @override
   _AdventureFormState createState() => _AdventureFormState();
-
 }
 
 class _AdventureFormState extends State<AdventureFormPage> {
