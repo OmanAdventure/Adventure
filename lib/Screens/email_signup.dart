@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:untitled/Screens/signup.dart';
+import 'PhotoContainerScreen.dart';
 import 'adventures.dart';
 import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Initialize Firebase
 void main() async {
@@ -20,13 +24,16 @@ class SignUpForm extends StatelessWidget {
       theme: ThemeData(
         // primarySwatch: Colors.teal,
       ),
-      home:  SignUpScreen(),
+      home:   SignUpScreen(sourceScreen: '',),
     );
   }
 }
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  // this is to know from which screen is the customer coming
+  final String sourceScreen;
+  const SignUpScreen({Key? key, required this.sourceScreen}) : super(key: key);
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -52,7 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // ---------------------- To Firebase ----------------------
 
-  Future<void> _signUp() async {
+   Future<void> _signUp(List<String> sourceScreens) async {
     setState(() {
   //    _isSubmitting = true;
     });
@@ -84,22 +91,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Add the User data to Firestore with the UUID and count
         final userData = {
 
-          _emailController.text == '' ||
-              _passwordController.text == '' ||
-              _selectedGender == null ||
-              _phoneNumberController.text == ''
-                  'AccountCreationDate': DateTime.now(),
+          'AccountCreationDate': DateTime.now(),
           'UserID': uuid, // add the UUID to the map
           'User Count': count + 1,
           'User Email': _emailController.text,
           'User Gender': _selectedGender,
-          'Adventure Description': _passwordController.text,
+          'Password': _passwordController.text,
           'Phone Number': _phoneNumberController.text,
 
         };
         await FirebaseFirestore.instance
             .collection('users')
-            .add(userData as Map<String, dynamic>);
+            .add(userData);
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text(
                 'You have registered your account successfully')));
@@ -108,16 +111,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
           _isSubmitting = false;
         });
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AdventuresContainerScreen(),
-          ),
-        );
+
+        if (sourceScreens.contains('AdventuresScreen')) {
+          // Code for when the previous screen was Adventure.dart
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdventuresContainerScreen(),
+            ),
+          );
+        }
+
+        if (sourceScreens.contains('HomeScreen')) {
+          // Code for when the previous screen was HomeScreen
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => adventuresfunc(),
+            ),
+          );
+        }
+
+
       } catch (error) {
         print(error);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(error.toString())));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.toString())));
         setState(() {
           _isSubmitting = false;
         });
@@ -270,7 +290,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               const SizedBox(height: 16.0),
                               ElevatedButton(
-                                onPressed: _signUp,
+                                onPressed: () {
+                                  _signUp(['AdventuresScreen', 'HomeScreen']);
+                                },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
                                   backgroundColor: Colors.teal,

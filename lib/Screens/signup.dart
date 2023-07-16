@@ -50,7 +50,7 @@ class SignUp extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SignUpScreen()),
+                      MaterialPageRoute(builder: (context) => const SignUpScreen(sourceScreen: 'HomeScreen')),
                     );
                   },
                 )),

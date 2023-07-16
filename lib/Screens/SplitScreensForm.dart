@@ -1671,7 +1671,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
       };
       await FirebaseFirestore.instance
           .collection('adventure')
-          .add(adventureData as Map<String, dynamic>);
+          .add(adventureData);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Adventure submitted successfully')));
 

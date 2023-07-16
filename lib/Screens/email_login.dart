@@ -1,14 +1,17 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_carousel_widget/flutter_carousel_indicators.dart';
-import 'PhotoContainerScreen.dart';
-import 'package:google_fonts/google_fonts.dart';
-//import 'home.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'PhotoContainerScreen.dart';
+
 import 'email_signup.dart';
+
+
 
 class EmailLogIn extends StatefulWidget {
   @override
@@ -19,51 +22,48 @@ class _EmailLogInState extends State<EmailLogIn> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
   void validate() {
-    if(_formKey.currentState!.validate()){
-      print("validates");
-    } else{
-      print(" not validates");
+    if (_formKey.currentState!.validate()) {
+      print("Validated");
+    } else {
+      print("Not Validated");
     }
   }
 
-  void EmailValidator() {
-  bool isValidEmail() {
-    return RegExp(
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(emailController.text);
-  }
-}
-
-// Email validator
   void emailValidator() {
-
-    if(emailController.text == null || emailController.text.isEmpty ){
-      print("Not validates - Enter Email Address");
-      Navigator.of(context).restorablePush(_emailDialogBuilder);
-    } else if (!emailController.text.contains('@')){
-      print("Validates - Please enter a valid email address!");
-      Navigator.of(context).restorablePush(_emailDialogBuilder);
+    if (emailController.text == null || emailController.text.isEmpty) {
+      print("Not Validated - Enter Email Address");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => _emailDialogBuilder(context),
+      );
+    } else if (!EmailValidator.validate(emailController.text)) {
+      print("Not Validated - Please enter a valid email address!");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => _emailDialogBuilder(context),
+      );
     } else {
       print('Validated');
     }
   }
 
-
-  // Password validator
   void passwordValidator() {
-
-    if (passwordController.text.isEmpty || passwordController.text == null || passwordController.text.length < 7) {
-      print("Not validates");
-      Navigator.of(context).restorablePush(_passwordDialogBuilder);
-    } else if (!(passwordController.text.contains('@')) || !(passwordController.text.contains('!')) ){
-      print("Validates");
+    if (passwordController.text.isEmpty ||
+        passwordController.text == null ||
+        passwordController.text.length < 7) {
+      print("Not Validated");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => _passwordDialogBuilder(context),
+      );
+    } else {
+      print("Validated");
     }
-
   }
-
-  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +72,12 @@ class _EmailLogInState extends State<EmailLogIn> {
     return Stack(
       children: <Widget>[
         Container(
-          decoration: const BoxDecoration (
-              image: DecorationImage(
-                  image: AssetImage('assets/images/LoginImage.png'),
-                  // https://www.oerlive.com/oman/4-unique-ideas-for-a-socially-distanced-holiday-adventure-in-oman/
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.topCenter
-              )
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/LoginImage.png'),
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.topCenter,
+            ),
           ),
         ),
         Container(
@@ -100,22 +99,22 @@ class _EmailLogInState extends State<EmailLogIn> {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       style: const TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'SFUIDisplay'
+                        color: Colors.black,
+                        fontFamily: 'SFUIDisplay',
                       ),
                       decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email, color: Colors.teal,),
-                          labelStyle: TextStyle(
-                              fontSize: 15
-                          )
+                        border: OutlineInputBorder(),
+                        labelText: 'Email',
+                        prefixIcon: Icon(
+                          Icons.email,
+                          color: Colors.teal,
+                        ),
+                        labelStyle: TextStyle(fontSize: 15),
                       ),
-
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Enter Email Address';
-                        } else if (!value.contains('@')) {
+                        } else if (!EmailValidator.validate(value)) {
                           return 'Please enter a valid email address!';
                         }
                         return null;
@@ -130,21 +129,21 @@ class _EmailLogInState extends State<EmailLogIn> {
                     controller: passwordController,
                     keyboardType: TextInputType.emailAddress,
                     style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'SFUIDisplay'
+                      color: Colors.black,
+                      fontFamily: 'SFUIDisplay',
                     ),
                     decoration: const InputDecoration(
                       focusColor: Colors.teal,
-                        border: OutlineInputBorder(),
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock, color: Colors.teal,),
-                        labelStyle: TextStyle(
-                            fontSize: 15
-                        )
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        color: Colors.teal,
+                      ),
+                      labelStyle: TextStyle(fontSize: 15),
                     ),
-                    // The validator receives the text that the user has entered.
                     validator: (value) {
-                      if (value == null || value.isEmpty || emailController.text == null || emailController.text.isEmpty ) {
+                      if (value == null || value.isEmpty) {
                         return 'Enter Password';
                       } else if (value.length < 6) {
                         return 'Password must be at least 6 characters!';
@@ -156,55 +155,69 @@ class _EmailLogInState extends State<EmailLogIn> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: isLoading
-                          ? Container(
-                            height: 60.0,
-                            child: const Center(
-                                child:   CircularProgressIndicator(
-                              valueColor:  AlwaysStoppedAnimation<Color>(Colors.teal),
-                               strokeWidth: 5.0,
-                            )),
-                            )
+                      ? Container(
+                    height: 60.0,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+                        strokeWidth: 5.0,
+                      ),
+                    ),
+                  )
                       : MaterialButton(
-                         onPressed: (){
+                    onPressed: () async {
+                      emailValidator();
+                      passwordValidator();
 
-                           emailValidator();
-                           passwordValidator();
-
-
-                           if (emailController.text.isEmpty == true || passwordController.text.isEmpty == true) {
-                             setState(() {
-                               isLoading = false;
-                             });
-                           } else if (emailController.text.isEmpty == false || passwordController.text.isEmpty == false) {
-                           setState(() {
-                             isLoading = true;
-                           });
-                           logInToFb();
-                           }
-
-                           print(emailController.text);
-                           print(emailController.text);
-
-                           /*
-                          if (_formKey.currentState!.validate()) {
-                          setState(() {
+                      if (emailController.text.isEmpty ||
+                          passwordController.text.isEmpty) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      } else {
+                        setState(() {
                           isLoading = true;
-                          });
+                        });
+                        try {
                           logInToFb();
-                          }
-                        */
+                        } catch (error) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Error"),
+                                content: Text(error.toString()),
+                                actions: [
+                                  ElevatedButton(
+                                    child: Text("Ok"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      isLoading = false;
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      }
 
-                                  },
-                            color: Colors.teal,
-                            elevation: 0,
-                            minWidth: 400,
-                            height: 50,
-                            textColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
-                            ),//since this is only a UI app
-
-                         child: const Text('SIGN IN',
+                      print(emailController.text);
+                      print(emailController.text);
+                    },
+                    color: Colors.teal,
+                    elevation: 0,
+                    minWidth: 400,
+                    height: 50,
+                    textColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'SIGN IN',
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: 'SFUIDisplay',
@@ -213,75 +226,78 @@ class _EmailLogInState extends State<EmailLogIn> {
                     ),
                   ),
                 ),
-                Padding(
-                    padding:  EdgeInsets.only(top: 5),
-                    child: Center(
-                      child: TextButton(
-                            onPressed: () {
-                              //forgot password screen
-                            },
-                            child: const Text(
-                              'Forgot Password ?',
-                              style: TextStyle(
-                                fontFamily: 'SFUIDisplay',
-                                color: Colors.teal,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
 
-                    )
+                Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: () {
+                        //forgot password screen
+                      },
+                      child: const Text(
+                        'Forgot Password ?',
+                        style: TextStyle(
+                          fontFamily: 'SFUIDisplay',
+                          color: Colors.teal,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 5),
                   child: Center(
                     child: RichText(
                       text: const TextSpan(
-                          children: [
-                            TextSpan(
-                                text: "Don't have an account with Oman Adventure? ",
-                                style: TextStyle(
-                                  fontFamily: 'SFUIDisplay',
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                )
+                        children: [
+                          TextSpan(
+                            text: "Don't have an account with Oman Adventure? ",
+                            style: TextStyle(
+                              fontFamily: 'SFUIDisplay',
+                              color: Colors.black,
+                              fontSize: 15,
                             ),
-                          ]
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                    padding:  EdgeInsets.only(top: 3),
+                  padding: EdgeInsets.only(top: 3),
                   child: Center(
-
-                      child: DefaultTextStyle(
-                          style: const TextStyle(
+                    child: DefaultTextStyle(
+                      style: const TextStyle(
+                        fontFamily: 'SFUIDisplay',
+                        color: Colors.teal,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUpScreen(
+                                sourceScreen: '',
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(
                             fontFamily: 'SFUIDisplay',
                             color: Colors.teal,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
-                        child: TextButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUpScreen()),
-                            );
-                          },
-                           child: const Text('Sign Up',
-                             style: TextStyle(
-                             fontFamily: 'SFUIDisplay',
-                             color: Colors.teal,
-                             fontSize: 15,
-                             fontWeight: FontWeight.bold,
-                           ),
-                           ),
                         ),
-                      )
-
-                  )
+                      ),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 5),
@@ -290,22 +306,26 @@ class _EmailLogInState extends State<EmailLogIn> {
                       text: TextSpan(
                         style: defaultStyle,
                         children: <TextSpan>[
-                          const TextSpan(text: 'By clicking Sign Up, you agree to our '),
+                          const TextSpan(
+                            text: 'By clicking Sign Up, you agree to our ',
+                          ),
                           TextSpan(
-                              text: 'Terms of Service',
-                              style: linkStyle,
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  print('Terms of Service"');
-                                }),
+                            text: 'Terms of Service',
+                            style: linkStyle,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                print('Terms of Service');
+                              },
+                          ),
                           const TextSpan(text: ' and that you have read our '),
                           TextSpan(
-                              text: 'Privacy Policy',
-                              style: linkStyle,
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  print('Privacy Policy"');
-                                }),
+                            text: 'Privacy Policy',
+                            style: linkStyle,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                print('Privacy Policy');
+                              },
+                          ),
                         ],
                       ),
                     ),
@@ -314,139 +334,119 @@ class _EmailLogInState extends State<EmailLogIn> {
               ],
             ),
           ),
-        )
+        ),
       ],
     );
-  } // Widget Builder
+  }
 
-  void logInToFb() {
-    FirebaseAuth.instance
-        .signInWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text)
-        .then((result) {
-      isLoading = false;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => adventuresfunc(uid: result.user!.uid)),
+  Future<void> logInToFb() async {
+    try {
+
+      final email = emailController.text;
+      final password = passwordController.text;
+
+      final UserCredential userCredential =
+      await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-    }).catchError((err) {
-      print(err.message);
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Error"),
-              content: Text(err.message),
-              actions: [
-                ElevatedButton(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          });
-    });
+
+      final userId = userCredential.user!.uid;
+
+      final DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+      await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+      final userData = userSnapshot.data();
+
+      // Implement further logic with the retrieved user data
+
+      print('Logged in successfully!');
+      print('User ID: $userId');
+      print('User Data: $userData');
+    } catch (error) {
+      print('Login failed: $error');
+      isLoading = false;
+      // Handle login failure, e.g., show an error message to the user
+    }
   }
 
-
-  // ------Email Dialog Builder-----
-
-  /// Dialog Builder
-  static Route<Object?> _emailDialogBuilder(
-      BuildContext context, Object? arguments) {
-    return DialogRoute<void>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        scrollable: true, // <-- Set it to true
-        content: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextButton.icon(
-                  onPressed: null,
-                  icon: const Icon(Icons.warning, color: Colors.teal),
-                  label: const Text(
-                    "Please make sure to enter a valid email address",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.normal,
-                      color: Colors.teal,
-                    ),
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child:  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.teal,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("OK"),
-                  ),
-
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-//------Password Dialog Builder-----
-
-  /// Dialog Builder
-  static Route<Object?> _passwordDialogBuilder(
-      BuildContext context, Object? arguments) {
-    return DialogRoute<void>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        scrollable: true, // <-- Set it to true
-        content: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextButton.icon(
-                  onPressed: null,
-                  icon: const Icon(Icons.warning, color: Colors.teal),
-                  label: const Text(
-                    "Please make sure to enter a password with at least 7 characters mixed with numbers, letters and \n at least one special character, e.g., ! @ # ? ] ",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.normal,
-                      color: Colors.teal,
-                    ),
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child:  ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.teal,
+  static Widget _emailDialogBuilder(BuildContext context) {
+    return AlertDialog(
+      scrollable: true,
+      content: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: TextButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.warning, color: Colors.teal),
+              label: const Text(
+                "Please make sure to enter a valid email address",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.normal,
+                  color: Colors.teal,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("OK"),
               ),
-
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.teal,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-//--------------------
-} // State
-
-
+  static Widget _passwordDialogBuilder(BuildContext context) {
+    return AlertDialog(
+      scrollable: true,
+      content: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: TextButton.icon(
+              onPressed: null,
+              icon: const Icon(Icons.warning, color: Colors.teal),
+              label: const Text(
+                "Please make sure to enter a password with at least 7 characters mixed with numbers, letters and \n at least one special character, e.g., ! @ # ? ] ",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.normal,
+                  color: Colors.teal,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.teal,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

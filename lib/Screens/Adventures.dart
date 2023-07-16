@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:untitled/Screens/SplitScreensForm.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -536,7 +537,7 @@ class ReusableCard extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
+       Padding(
           padding: const EdgeInsets.all(10.0),
           child: SignInButton(
             Buttons.Email,
@@ -544,7 +545,7 @@ class ReusableCard extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignUpScreen()),
+                MaterialPageRoute(builder: (context) => const SignUpScreen(sourceScreen: 'AdventuresScreen')),
               );
             },
           ),
@@ -564,14 +565,27 @@ class ReusableCard extends StatelessWidget {
             width: 220.0,
           ),
         ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SignInButtonBuilder(
+                    text: 'continue for testing',
+                    icon: Icons.two_wheeler,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyCustomForm() ),
+                      );
+                    },
+                    backgroundColor: Colors.red,
+                    width: 220.0,
+                  ),
+                ),
 
               ],
           ),
     ),
     );
   }
-
-
 
 
 
