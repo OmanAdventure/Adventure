@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ffi';
+//import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -116,7 +116,7 @@ class MapPickerScreenState extends State<MapPickerScreen> {
           text: TextSpan(
             style: TextStyle(fontSize: 16),
             children: [
-             
+
               WidgetSpan(
                 child: Column(
                   children: [
@@ -177,7 +177,7 @@ class MapPickerScreenState extends State<MapPickerScreen> {
       _currentLocation = LatLng(position.latitude, position.longitude);
       print('888 Current Location 88888 = $_currentLocation ');
 
-     print('----------- $selectedPlaceLat');
+      print('----------- $selectedPlaceLat');
 
       _isLoading = false;
       notifyTheUserToSearch();
@@ -192,7 +192,7 @@ class MapPickerScreenState extends State<MapPickerScreen> {
         backgroundColor: Colors.teal,
         title: const Text("Pick a Location"),
         actions: [
-         /*
+          /*
           IconButton(
             onPressed:  _handlePressButton,
             icon:const Icon(Icons.search, size: 30,),
@@ -205,18 +205,18 @@ class MapPickerScreenState extends State<MapPickerScreen> {
         child: CircularProgressIndicator(),
       )
           : Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-           children: [
-              Expanded(
-                 child: SizedBox(
-                  height: 400,
-                  child: GoogleMap(
-                   markers: _markers,
-                   mapType: MapType.normal,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 400,
+              child: GoogleMap(
+                markers: _markers,
+                mapType: MapType.normal,
 
-                   initialCameraPosition : CameraPosition(target: _currentLocation, zoom: 16.0),
-                    onMapCreated: (GoogleMapController controller) { googleMapController = controller; },
-                    trafficEnabled: true,
+                initialCameraPosition : CameraPosition(target: _currentLocation, zoom: 16.0),
+                onMapCreated: (GoogleMapController controller) { googleMapController = controller; },
+                trafficEnabled: true,
 
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
@@ -228,40 +228,40 @@ class MapPickerScreenState extends State<MapPickerScreen> {
             child: SizedBox(
               width: double.infinity,
               child:  ElevatedButton(
-                       onPressed: () async {
+                onPressed: () async {
 
-                         // Check if the user has not selected a location
-                         if (selectedPlaceLat  == 0.0) {
-                           showDialog(
-                             context: context,
-                             builder: (context) => AlertDialog(
-                               title: const Text("Opps"),
-                               content: const Text("Please select a location."),
-                               actions: [
-                                 TextButton(
-                                   onPressed: () => Navigator.pop(context),
-                                   child: const Text("OK"),
-                                 ),
-                               ],
-                             ),
-                           );
-                         }
+                  // Check if the user has not selected a location
+                  if (selectedPlaceLat  == 0.0) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Opps"),
+                        content: const Text("Please select a location."),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-                       final selectedCoordinates = LatLng(selectedPlaceLat , selectedPlaceLng);
-                         print('Selected Coordinates $selectedCoordinates');
-                         print('Selected Place Name  $selectedPlaceName');
+                  final selectedCoordinates = LatLng(selectedPlaceLat , selectedPlaceLng);
+                  print('Selected Coordinates $selectedCoordinates');
+                  print('Selected Place Name  $selectedPlaceName');
 
-                         String Lat = selectedPlaceLat.toString();
-                         String Lang = selectedPlaceLng.toString();
-                         print('-==-=-=-=-=-=-==-=-=-=-=-=-=-=-==');
-                         print('Latitude  $Lat');
-                         print('Langitiude  $Lang');
-                         Navigator.pop(context, [Lat, Lang, selectedPlaceName ]);
+                  String Lat = selectedPlaceLat.toString();
+                  String Lang = selectedPlaceLng.toString();
+                  print('-==-=-=-=-=-=-==-=-=-=-=-=-=-=-==');
+                  print('Latitude  $Lat');
+                  print('Langitiude  $Lang');
+                  Navigator.pop(context, [Lat, Lang, selectedPlaceName ]);
 
-                        //   Navigator.pop(context, {
-                     //     'Selected Coordinates': selectedCoordinates,
-                    //      'Location Title ': selectedPlaceName,
-                    //    });
+                  //   Navigator.pop(context, {
+                  //     'Selected Coordinates': selectedCoordinates,
+                  //      'Location Title ': selectedPlaceName,
+                  //    });
 
 
                 },

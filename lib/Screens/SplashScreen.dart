@@ -1,7 +1,7 @@
 import 'dart:async';
 import '../Constant/Constant.dart';
 import 'Constant/Constant.dart';
-import 'package:flutter/cupertino.dart';
+//import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 
@@ -50,10 +50,11 @@ class SplashScreenState extends State<SplashScreen>
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-            Column(
+            const Column(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              /*
               Padding(
                   padding: const EdgeInsets.only(bottom: 30.0),
 
@@ -62,6 +63,7 @@ class SplashScreenState extends State<SplashScreen>
                     height: 25.0,
                     fit: BoxFit.scaleDown,
                   ))
+              */
             ],
           ),
 

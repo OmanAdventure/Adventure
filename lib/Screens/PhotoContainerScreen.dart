@@ -1,22 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'package:getwidget/getwidget.dart';
+//import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+//import 'package:google_nav_bar/google_nav_bar.dart';
+//import 'package:transparent_image/transparent_image.dart';
+//import 'package:getwidget/getwidget.dart';
+import 'package:untitled/Screens/userProfile.dart';
 import '/Screens/Adventures.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+//import 'package:url_launcher/url_launcher.dart';
+//import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/Screens/Accommodation.dart';
-import '/Screens/HomeScreen.dart';
-import 'PhotoContainerScreen.dart';
-import 'Constant/Constant.dart';
+//import '/Screens/Accommodation.dart';
+//import '/Screens/HomeScreen.dart';
+//import 'PhotoContainerScreen.dart';
+//import 'Constant/Constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_database/firebase_database.dart';
+//import 'package:google_sign_in/google_sign_in.dart';
+//import 'package:firebase_database/firebase_database.dart';
 import 'signup.dart';
 import 'SplitScreensForm.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 
 void main() => runApp(adventuresfunc());
@@ -24,6 +27,7 @@ void main() => runApp(adventuresfunc());
 class adventuresfunc extends StatelessWidget {
     final String? uid;
     adventuresfunc({this.uid});
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +44,50 @@ class adventures extends StatefulWidget {
   const adventures({Key? key}) : super(key: key);
   @override
   State<adventures> createState() => PhotoContainerScreen();
+
+
 }
 
 //-------------------
 class PhotoContainerScreen extends State<adventures> {
   final String? uid;
   PhotoContainerScreen({this.uid});
+  late Future<UserModel> _userDataFuture;
+  late UserModel _user;
+  @override
+  void initState() {
+    super.initState();
+    _user = UserModel(
+      userName: "",
+      id: "",
+      email: "",
+      phoneNumber: "",
+      gender: "",
+    );
+
+    _userDataFuture = _getUserData();
+  }
+
+  Future<UserModel> _getUserData() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
+
+        return UserModel(
+          userName: userSnapshot.data()?["UserName"] ?? "",
+          id: user.uid,
+          email: user.email ?? "",
+          phoneNumber: userSnapshot.data()?["Phone Number"] ?? "",
+          gender: userSnapshot.data()?["User Gender"] ?? "",
+        );
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+     }
+    return _user;
+  }
 
 // for the slider indicator
   int activePage = 1;
@@ -75,11 +117,6 @@ class PhotoContainerScreen extends State<adventures> {
   @override
   Widget build(BuildContext context) {
     return Container(
-
-
-
-
-
       /*
       decoration: const BoxDecoration(
           image: DecorationImage(
@@ -103,12 +140,12 @@ class PhotoContainerScreen extends State<adventures> {
               ),
             ),
             leading: IconButton(
-              icon: Icon(Icons.add_box_sharp),
+              icon: const Icon(Icons.add_box_sharp),
               onPressed: () {
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context ) => AdventureFormPage()),
+                  MaterialPageRoute(builder: (context ) => const AdventureFormPage()),
                 );
               },
             ),
@@ -124,7 +161,7 @@ class PhotoContainerScreen extends State<adventures> {
                           (Route<dynamic> route) => false);
                 });
               },
-              icon: Icon(Icons.exit_to_app),
+              icon: const Icon(Icons.exit_to_app),
             ),],
           ),
           body: Container(
@@ -151,26 +188,46 @@ class PhotoContainerScreen extends State<adventures> {
                           child:  AnimatedContainer(
                             duration: const Duration(seconds: 2),
                              curve: Curves.ease,
-                              child:  Column(
+                              child:    Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                    children:     [
-                            Padding(
-                               padding:   EdgeInsets.fromLTRB(20, 40, 0, 0),
-                                  child:  Row(
-                                      children: const [
-                                           Text("Welcome Back vladimir  " ,
-                                               style: TextStyle(
-                                                fontSize: 25,
-                                                    )
+
+                                       FutureBuilder<UserModel>(
+                                       future: _userDataFuture,
+                                       builder: (context, snapshot) {
+                                         if (snapshot.connectionState == ConnectionState.waiting) {
+                                           return const Center(child: CircularProgressIndicator());
+                                         } else if (snapshot.hasError) {
+                                           return Center(child: Text("Error: ${snapshot.error}"));
+                                         } else {
+                                           final UserModel user = snapshot.data!;
+                                           return Padding(
+                                             padding: const EdgeInsets.all(16),
+                                              child:  Row(
+                                           children: [
+                                                     const Text("Welcome back " ,
+                                                         style: TextStyle(
+                                                           fontSize: 25,
+                                                         )
+                                                     ),
+                                                   Text( user.userName,
+                                                   style: const TextStyle(
+                                                   fontSize: 25,
+                                                        )
+                                                      ),
+                                                    ],
                                                    ),
-                                                 ],
-                                            ),
-                                        ),
+
+                                           );
+                                       }
+                                       },
+                                     ),
+
 
                                    const SizedBox(
                                      child:  Padding(
                                        padding:   EdgeInsets.fromLTRB(20, 20, 0, 0),
-                                       child: Text('Lets Adventure together ' ,
+                                       child: Text("Let's Adventure together " ,
                                            style: TextStyle(
                                              fontSize: 15, color: Colors.grey,
                                            )),
@@ -214,13 +271,15 @@ class PhotoContainerScreen extends State<adventures> {
                                   fit: BoxFit.cover,
                                 ),
                                 onTap: () {
-                                  const String image = ("assets/images/hiking.jpg");
+                                 // const String image = ("assets/images/hiking.jpg");
                                   const String name = ("Hiking");
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            RouteTwo(image: image, name: name)),
+                                      builder: (context) {
+                                        return const AdventuresContainerScreen(name: name,);
+                                      },
+                                    ),
                                   );
                                 },
                               ),
@@ -262,14 +321,15 @@ class PhotoContainerScreen extends State<adventures> {
                                   fit: BoxFit.cover,
                                 ),
                                 onTap: () {
-                                  const String image =
-                                  ("assets/images/cycling.jpg");
+                               //   const String image =  ("assets/images/cycling.jpg");
                                   const String name = ("Cycling");
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            RouteTwo(image: image, name: name)),
+                                      builder: (context) {
+                                        return const AdventuresContainerScreen(name: name,);
+                                      },
+                                    ),
                                   );
                                 },
                               ),
@@ -318,14 +378,14 @@ class PhotoContainerScreen extends State<adventures> {
                                   fit: BoxFit.cover,
                                 ),
                                 onTap: () {
-                                  const String image = ("assets/images/beach.jpg");
-                                  String name = ("Beach");
+                                 // const String image = ("assets/images/beach.jpg");
+                                  String name = ("Beach Adventure");
 
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) {
-                                        return AdventuresContainerScreen();
+                                        return AdventuresContainerScreen(name: name,);
                                       },
                                     ),
                                   );
@@ -377,15 +437,14 @@ class PhotoContainerScreen extends State<adventures> {
                                   fit: BoxFit.cover,
                                 ),
                                 onTap: () {
-                                  const String image =
-                                  ("assets/images/horseback.jpg");
+                                //  const String image = ("assets/images/horseback.jpg");
                                   const String name = ("Horse Riding");
 
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) {
-                                        return AdventuresContainerScreen();
+                                        return const AdventuresContainerScreen(name: name,);
                                       },
                                     ),
                                   );
@@ -417,7 +476,7 @@ class PhotoContainerScreen extends State<adventures> {
               ),
             ),
           ),
-          drawer: NavigateDrawer(uid: this.uid)
+          drawer: NavigateDrawer(uid: uid)
       )  ,
     );
 
@@ -426,128 +485,10 @@ class PhotoContainerScreen extends State<adventures> {
 }
 
 
-class RouteTwo extends StatelessWidget {
-  final String image;
-  final String name;
-
-  RouteTwo({Key? key, required this.image, required this.name})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.teal,
-        title: Text(
-          'Oman Adventure',
-          style: GoogleFonts.satisfy(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontStyle: FontStyle.normal,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      backgroundColor: const Color(0xFFeaeaea),
-      body: Container(
-        padding: const EdgeInsets.all(4.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 1.0,
-                margin: const EdgeInsets.all(8.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Image.asset(
-                          image,
-                          width: 100.0,
-                          height: 100.0,
-                        ),
-                        const SizedBox(width: 40.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const <Widget>[
-                            Text(
-                              ("The name of the service"),
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontWeight: FontWeight.normal),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(
-                              height: 15.0,
-                            ),
-                            Text(
-                              ("The name of the service provider"),
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontWeight: FontWeight.normal),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.attach_money,
-                              color: Colors.teal,
-                              size: 30,
-                            ),
-                            const SizedBox(
-                              width: 70.0,
-                            ),
-                            IconButton(
-                              iconSize: 30,
-                              icon: const Icon(Icons.location_on_outlined),
-                              color: Colors.teal,
-                              onPressed: () {},
-                            ),
-                            const SizedBox(
-                              width: 70.0,
-                            ),
-                            ElevatedButton(
-                                style: TextButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(32.0),
-                                    ),
-                                    backgroundColor: Colors.red),
-                                onPressed: () {
-                                  print("Button Pressed ");
-                                },
-                                child: const Text("Let's do it"))
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-//}
 
 class NavigateDrawer extends StatefulWidget {
   final String? uid;
-  NavigateDrawer({Key? key, this.uid}) : super(key: key);
+  const NavigateDrawer({Key? key, this.uid}) : super(key: key);
   @override
   _NavigateDrawerState createState() => _NavigateDrawerState();
 }
@@ -555,7 +496,7 @@ class NavigateDrawer extends StatefulWidget {
 class _NavigateDrawerState extends State<NavigateDrawer> {
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return const Drawer(
       child: Text("MY ADVENTURE PAGE")
     );
   }

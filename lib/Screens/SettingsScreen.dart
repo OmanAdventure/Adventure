@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
+import 'package:untitled/Screens/signup.dart';
+import 'package:untitled/Screens/userProfile.dart';
 import 'SettingsScreen.dart';
 import 'PaymentMethodScreen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 void main() => runApp(
     Settings()
@@ -18,6 +23,7 @@ class Settings extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.teal,
           title: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,15 +39,7 @@ class Settings extends StatelessWidget {
               SizedBox(height: 10.0),
             ],
           ),
-          centerTitle: false,
-          backgroundColor: Colors.teal,
-          elevation: 0.0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+
         ),
         body: // MyApp(),
         settingsState(),
@@ -66,12 +64,58 @@ class _MySettingsState extends  State<settingsState> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildButton(
+          _buildButton(
               context,
               text: 'My Profile',
               icon: Icons.person_outline,
               onTap: () {
-                // Navigate to My Profile screen
+                User? user = FirebaseAuth.instance.currentUser;
+                String userId = "";
+                if (user != null) {
+                  userId = user.uid;
+                  print('Current User ID: $userId');
+                  // Navigate to My Profile screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>  UserScreen()),
+                  );
+
+                } else {
+                  print('No user is currently logged in.');
+                  // User is not logged in, show an alert
+                  showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                  return AlertDialog(
+                  title: Text("Login Required"),
+                  content: Text("Please login to check your profile."),
+                  actions: [
+                  TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop();
+                  },
+                  child: Text("Ok"),
+                  ),
+
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to the login screen or any other desired screen
+                        Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignUp(),
+                                ),
+                               );
+                             },
+                             child: const Text("Let's login"),
+                           ),
+                         ],
+                        );
+                      },
+                  );
+
+                }
+
               },
             ),
             _buildButton(
@@ -101,6 +145,7 @@ class _MySettingsState extends  State<settingsState> {
 
               onTap: () => shareApp(),
             ),
+            /*
             _buildButton(
               context,
               text: 'Become a Service Provider',
@@ -109,6 +154,7 @@ class _MySettingsState extends  State<settingsState> {
                 // Navigate to Become a Service Provider screen
               },
             ),
+            */
             _buildButton(
               context,
               text: 'Terms and Conditions',
@@ -125,18 +171,80 @@ class _MySettingsState extends  State<settingsState> {
                 // Navigate to Privacy Policy screen
               },
             ),
+            if (FirebaseAuth.instance.currentUser != null) // Check if user is logged in
             _buildButton(
               context,
               text: 'Logout',
               icon: Icons.exit_to_app_outlined,
               onTap: () {
-                // Perform logout action
+                _confirmLogout(context);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+// An alert before Signing out
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Logout'),
+          content: Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Logout'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _logout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+// Create a function to handle logout
+  Future<void> _logout() async {
+    try {
+      // Clear cached user data
+      await _clearCachedUserData();
+
+      // Sign out of Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to the login screen or any other desired screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SignUp(),
+        ),
+      );
+      // Replace '/login' with your desired route
+    } catch (e) {
+      print("Error during logout: $e");
+    }
+  }
+
+  // Function to clear cached user data
+  Future<void> _clearCachedUserData() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.clear(); // Clear all cached data
+      print("Cached user data cleared");
+    } catch (e) {
+      print("Error clearing cached user data: $e");
+    }
   }
 
   Widget _buildButton(BuildContext context,

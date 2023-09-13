@@ -62,6 +62,34 @@ class _AdventureFormState extends State<AdventureFormPage> {
   TextEditingController timeController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController maxNumController = TextEditingController();
+  TextEditingController locationName = TextEditingController();
+  TextEditingController LocationLink = TextEditingController();
+
+  DateTime _dateTimeStart = DateTime.now();
+  DateTime _dateTimeEnd = DateTime(2025, 1, 1, 00, 00);
+
+
+
+
+
+
+  late  String   _StartDate = _dateTimeStart != null
+        ? '${_dateTimeStart.year}/${_dateTimeStart.month}/${_dateTimeStart.day}'
+        : "Not set";
+  late  String    _EndDate = _dateTimeEnd != null
+        ? '${_dateTimeEnd.year}/${_dateTimeEnd.month}/${_dateTimeEnd.day}'
+        : "Not set";
+
+  late String _StartTime = _dateTimeStart != null
+      ? '${_dateTimeStart.hour.toString().padLeft(2, '0')}:${_dateTimeStart.minute.toString().padLeft(2, '0')}'
+      : "Not set";
+
+  late String _EndTime = _dateTimeEnd != null
+      ? '${_dateTimeEnd.hour.toString().padLeft(2, '0')}:${_dateTimeEnd.minute.toString().padLeft(2, '0')}'
+      : "Not set";
+
+
+
 
   bool light = false;
   bool _showTextField = true;
@@ -81,10 +109,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
   DateTime now = DateTime.now();
 
- late  String _StartDate = "Not set";
- late String _EndDate = "Not set";
- late String _StartTime = "Not set";
- late String _EndTime = "Not set";
+
 
   // Time and date picker
   late DateTime selectedDateTime;
@@ -110,7 +135,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
   late String Lat = '';
   late String Long = '';
   late String googleMapsLink = '';
-  late String locationName = '';
+  //late String locationName = '';
 
   bool isAdventureFree = false; // initialize the checkbox value
   String freeAdventure = '';
@@ -121,7 +146,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
   final Color _textColorWhite = Colors.white;
 
 
-
   @override
   void dispose() {
     adventureDescription.dispose();
@@ -129,20 +153,17 @@ class _AdventureFormState extends State<AdventureFormPage> {
   }
 
   /// ---------------- Validating the Text Fields ---------------------
-
   validateTextFields(String value) {
     setState(() {
       PhoneNumlength = value.length;
     });
 
-    if (value == null || value.isEmpty) {
+    if (value.isEmpty) {
       return 'Please enter a username';
     }
     return null;
 
   }
-
-
   /// ---------------- Text Field Max length Alart Phone Number----------------------
   int PhoneNumlength = 0;
   _onChangedPhone(String value) {
@@ -256,7 +277,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
               ),
             ),
           ),
-
           //  Type of Adventure
           const Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -353,13 +373,13 @@ class _AdventureFormState extends State<AdventureFormPage> {
             ),
           ),
           // Difficulty
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
              child: ListTile(
-               leading: const Icon(Icons.accessibility),
+               leading: Icon(Icons.accessibility),
               title: Row(
                 // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const <Widget>[
+                  children: <Widget>[
                   Text("Difficulty level:"),
                  ]
              ),
@@ -503,10 +523,10 @@ class _AdventureFormState extends State<AdventureFormPage> {
               ),
             ),
           ),
-
         ],
       ),
     ),
+
 
     Step(
         state:
@@ -532,8 +552,10 @@ class _AdventureFormState extends State<AdventureFormPage> {
                       ),
                     ),
                     onPressed: () {
+                         pickDateTimeStart();
                     },
-                    child: Container(
+
+                    child: Container (
                       alignment: Alignment.center,
                       height: 50.0,
                       child: Row(
@@ -548,13 +570,13 @@ class _AdventureFormState extends State<AdventureFormPage> {
                                     // size: 18.0,
                                     color: Colors.white,
                                   ),
-                                  const Text('  Start Date: '),
+                                    Text(' Start Date:  $_StartDate   '),
                                   Text(
-                                    " $_StartDate",
+                                    _StartTime,
                                     style: const TextStyle(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15.0),
+                                      //  fontWeight: FontWeight.bold,
+                                        fontSize: 14.0),
                                   ),
                                 ],
                               )
@@ -564,8 +586,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
                             "  Change",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15.0),
+                               // fontWeight: FontWeight.bold,
+                                fontSize: 12.0),
                           ),
                         ],
                       ),
@@ -590,7 +612,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
                       ),
                     ),
                     onPressed: () {
-
+                      pickDateTimeEnd();
                     },
 
                     child: Container(
@@ -608,13 +630,13 @@ class _AdventureFormState extends State<AdventureFormPage> {
                                     // size: 18.0,
                                     color: Colors.white,
                                   ),
-                                  const Text('  End Date: '),
+                                    Text('  End Date:    $_EndDate '),
                                   Text(
-                                    "  $_EndDate",
+                                       '    $_EndTime',
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 15.0),
+                                        fontSize: 14.0),
                                   ),
                                 ],
                               )
@@ -624,8 +646,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
                             "  Change",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15.0),
+                               // fontWeight: FontWeight.bold,
+                                fontSize: 12.0),
                           ),
                         ],
                       ),
@@ -634,6 +656,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 ],
               ),
             ),
+
+            /*
             // Start Time
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -753,6 +777,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 ],
               ),
             ),
+            */
+
           ],
         )),
 
@@ -796,9 +822,9 @@ class _AdventureFormState extends State<AdventureFormPage> {
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
               child: Visibility(
                 visible: _showTextField,
-                child: Row(
+                child: const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: const <Widget>[
+                    children: <Widget>[
                       Text('Adventure Nature:',
                         style: TextStyle(fontSize: 15, ), textAlign: TextAlign.left,
                       ),
@@ -909,9 +935,9 @@ class _AdventureFormState extends State<AdventureFormPage> {
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                 child: Visibility(
                   visible: _showTextField,
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const <Widget>[
+                          children: <Widget>[
                           Text(  'Gender:',
                                         style: TextStyle(fontSize: 15, ), textAlign: TextAlign.left,
                                 ),
@@ -1203,8 +1229,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 ],
               ),
             ),
-
-
             //Price
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -1239,7 +1263,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 ),
               ),
             ),
-
             // Max Number of participants
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -1266,7 +1289,54 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 ),
               ),
             ),
-            // Map
+            const Padding (
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+              child: ListTile(
+                leading: Icon(Icons.location_on,),
+                title: Text('Gathering Point:'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+              child: ListTile(
+                leading: const Icon(Icons.location_on),
+                title: TextField(
+                  keyboardType: TextInputType.name,
+                  controller: locationName,
+                  decoration: const InputDecoration(
+                    hintText:  "Location Name",
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.teal),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 15),
+              child: ListTile(
+                leading: const Icon(Icons.location_on),
+                title: TextField(
+                  keyboardType: TextInputType.name,
+                  controller: LocationLink,
+                  decoration: const InputDecoration(
+                    hintText:  "Location Link",
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.teal),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+           /*
+            // Get the Map Link
             Padding (
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               child: ListTile(
@@ -1282,6 +1352,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
                     List<dynamic>? result = await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => MapPickerScreen()),
+                        //
                     );
                     if (result != null) {
                       String variable1 = result[0];
@@ -1299,13 +1370,14 @@ class _AdventureFormState extends State<AdventureFormPage> {
                       print('Aqui Variable 2: $Long');
                       googleMapsLink = 'https://www.google.com/maps/search/?api=1&query=$Lat,$Long';
                       print('Google Maps Link: $googleMapsLink');
-
                     }
                   }, // press
 
                 ),
               ),
             ),
+
+           */
 
           ],
         )
@@ -1347,10 +1419,14 @@ class _AdventureFormState extends State<AdventureFormPage> {
             Text( "Is Free Adventure:  ${freeAdventure}"),
             Text('Price : ${priceController.text}'),
             Text('Max number of Participants : ${maxNumController.text}'),
-            Text('Latitude : $Lat'),
-            Text('Longitude : $Long'),
-            Text('googleMapsLink : $googleMapsLink'),
-            Text('The name of the location : $locationName'),
+          //  Text('Latitude : $Lat'),
+          //  Text('Longitude : $Long'),
+          //  Text('googleMapsLink : $googleMapsLink'),
+           // Text('The name of the location : $locationName'),
+
+            Text('googleMapsLink : ${LocationLink.text}'),
+            Text('The name of the location : ${locationName.text}  '),
+
             SizedBox(height: 10,),
 
           ],
@@ -1364,6 +1440,9 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    //time declaration does not go here
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -1416,9 +1495,10 @@ class _AdventureFormState extends State<AdventureFormPage> {
                     Spacer(),
                     ElevatedButton(
                       onPressed: () {
-
-
                       _submitForm();
+
+                       Navigator.pop(context);
+
                       },
 
 
@@ -1489,26 +1569,23 @@ class _AdventureFormState extends State<AdventureFormPage> {
   Future<void> _submitForm() async {
     setState(() {
       _isSubmitting = true;
-    });
+          });
+
+
     // ----------- Validation ----------------------
-
-
     // Validate the required text fields
     if (advenproviderName.text == '' ||
         advenproviderName.text.isEmpty ||
-        adventuresdropdown == null ||
         adventuresdropdown.isEmpty ||
         adventureDescription.text.isEmpty ||
         phoneController.text.isEmpty ||
-        difficultyLevel == null ||
          priceController.text.isEmpty ||
         maxNumController.text.isEmpty ||
-        maxNumController == null ||
+        maxNumController.text == "" ||
         gender.isEmpty ||
-        gender== null ||
+        gender == "" ||
         age.isEmpty ||
         age.isEmpty ||
-        adventureNature == null ||
         adventureNature.isEmpty
 
          ) {
@@ -1523,8 +1600,22 @@ class _AdventureFormState extends State<AdventureFormPage> {
       });
       return;
     }
+/*
+    if (LocationLink == null || LocationLink == "" ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a location for the adventure'),
+            backgroundColor: Colors.red, // set the background color to red
+          )
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
+      return;
+    }
+*/
 
-
+/*
     if (googleMapsLink == null || googleMapsLink.isEmpty ) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1537,7 +1628,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
       });
       return;
     }
-
+*/
+/*
     if (_StartDate == "Not set" || _EndDate == "Not set" || _StartTime == "Not set" || _EndTime == "Not set") {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1548,6 +1640,10 @@ class _AdventureFormState extends State<AdventureFormPage> {
       _isSubmitting = false;
     }
 
+   * /
+
+     */
+/*
     print('=============Start TIME==================');
     DateTime startTime = DateFormat('hh:mm a').parse(_StartTime);
     print(startTime);
@@ -1583,7 +1679,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
         _isSubmitting = false;
       });
       return;
-
     }
 
 
@@ -1625,14 +1720,12 @@ class _AdventureFormState extends State<AdventureFormPage> {
       }
     }
 
-
-
-
-
+*/
+    print("I  am about  to submit this form ++++++++++++++++");
     try {
       // Generate a UUID
       final uuid = Uuid().v4();
-
+      print("I am trying to submit this form ++++++++++++++++");
       // Increment the adventure count
       final doc = await FirebaseFirestore.instance.collection('adventure_count').doc('count').get();
       final count = doc.exists ? doc.data()!['count'] as int : 0;
@@ -1643,30 +1736,32 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
         'AdventureCreationDate': DateTime.now(),
         'AdventureID': uuid, // add the UUID to the map
-        'Adventure Number': count + 1,
-        'service_provider_Name': advenproviderName.text,
-        'Type of Adventure': adventuresdropdown ,
-        'Adventure Description': adventureDescription.text,
-        'Phone Number':phoneController.text,
-        'Level of Difficulty' : difficultyLevel ,
+        'AdventureNumber': count + 1,
+        'ServiceProviderName': advenproviderName.text,
+        'TypeOfAdventure': adventuresdropdown ,
+        'AdventureDescription': adventureDescription.text,
+        'PhoneNumber':phoneController.text,
+        'LevelOfDifficulty' : difficultyLevel ,
 
-        'Start Date' : _StartDate,
-        'End tDate': _EndDate,
-        'Start Time':  _StartTime,
-        'End Time':_EndTime,
+        'StartDate' : _StartDate,
+        'EndDate': _EndDate,
+        'StartTime':  _StartTime,
+        'EndTime':_EndTime,
 
-        'Is only family ': onlyFamilies,
-        'Adventure Nature ' :  adventureNature,
+        'IsOnlyFamily': onlyFamilies,
+        'AdventureNature' :  adventureNature,
         'Gender' : gender ,
-        'Age ': age ,
+        'Age': age ,
 
-        "Is Free Adventure" : freeAdventure,
+        "IsFreeAdventure" : freeAdventure,
         'Price' : priceController.text,
-        'Max number of Participants' :  maxNumController.text,
-        'Latitude ': Lat ,
-        'Longitude ': Long ,
-        'googleMapsLink ': googleMapsLink ,
-        'The name of the location ': locationName ,
+        'MaxNumberOfParticipants' :  maxNumController.text,
+       // 'Latitude ': Lat ,
+       // 'Longitude ': Long ,
+       // 'googleMapsLink ': googleMapsLink ,
+        //'The name of the location ': locationName ,
+        'googleMapsLink' : LocationLink.text,
+        'TheNameOfTheLocation' : locationName.text,
 
       };
       await FirebaseFirestore.instance
@@ -1674,7 +1769,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
           .add(adventureData);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Adventure submitted successfully')));
-
       setState(() {
         _isSubmitting = false;
       });
@@ -1687,5 +1781,127 @@ class _AdventureFormState extends State<AdventureFormPage> {
       });
     }
   }
+
+// End of Form Submission
+
+
+  Future pickDateTimeStart() async {
+    DateTime? _dateStart = await pickDate();
+    if (_dateStart == null) return; // Cancel button.
+    TimeOfDay? _timeStart = await pickTimeStart();
+    if (_timeStart == null) return;
+
+    final _dateTimeStart = DateTime(
+      _dateStart.year,
+      _dateStart.month,
+      _dateStart.day,
+      _timeStart.hour,
+      _timeStart.minute,
+    );
+
+    setState(() {
+      this._dateTimeStart = _dateTimeStart;
+      _StartDate = '${_dateTimeStart.year}/${_dateTimeStart.month}/${_dateTimeStart.day}';
+      _StartTime = '${_dateTimeStart.hour.toString().padLeft(2, '0')}:${_dateTimeStart.minute.toString().padLeft(2, '0')}';
+    });
+  }
+
+  Future pickDateTimeEnd() async {
+    DateTime? _dateEnd = await pickDate();
+    if (_dateEnd == null) return; // Cancel button.
+    TimeOfDay? _timeEnd = await pickTimeEnd();
+    if (_timeEnd == null) return;
+
+    final _dateTimeEnd = DateTime(
+      _dateEnd.year,
+      _dateEnd.month,
+      _dateEnd.day,
+      _timeEnd.hour,
+      _timeEnd.minute,
+    );
+
+    setState(() {
+      this._dateTimeEnd = _dateTimeEnd;
+      _EndDate = '${_dateTimeEnd.year}/${_dateTimeEnd.month}/${_dateTimeEnd.day}';
+      _EndTime = '${_dateTimeEnd.hour.toString().padLeft(2, '0')}:${_dateTimeEnd.minute.toString().padLeft(2, '0')}';
+    });
+  }
+
+  Future<DateTime?> pickDate() async {
+    return showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2060),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Colors.teal, // Change this to the desired teal color
+            hintColor: Colors.teal, // Change this to the desired teal color
+            colorScheme: ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+  }
+
+
+  Future<TimeOfDay?> pickTime() async {
+    return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Colors.teal, // Change this to the desired teal color
+            hintColor: Colors.teal, // Change this to the desired teal color for time picker
+            colorScheme: ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+  }
+
+  Future<TimeOfDay?> pickTimeStart() async {
+    return pickTime();
+  }
+
+  Future<TimeOfDay?> pickTimeEnd() async {
+    return pickTime();
+  }
+
+/*
+  Future<TimeOfDay?> pickTime() async {
+    return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Colors.teal, // Change this to the desired teal color
+            hintColor: Colors.teal, // Change this to the desired teal color
+            colorScheme: ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+  }
+
+  Future<TimeOfDay?> pickTimeStart() => showTimePicker(
+    context: context,
+    initialTime: TimeOfDay(hour: _dateTimeStart.hour, minute: _dateTimeStart.minute),
+  );
+
+  Future<TimeOfDay?> pickTimeEnd() => showTimePicker(
+    context: context,
+    initialTime: TimeOfDay(hour: _dateTimeEnd.hour, minute: _dateTimeEnd.minute),
+  );
+*/
 
 }

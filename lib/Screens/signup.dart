@@ -5,6 +5,8 @@ import 'email_signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_design_icons_flutter/icon_map.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class SignUp extends StatelessWidget {
@@ -28,8 +30,7 @@ class SignUp extends StatelessWidget {
              ),],
         ),
         body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <
-              Widget>[
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
                 Padding(
                    padding: const EdgeInsets.all(10.0),
                    child: Text(
@@ -54,13 +55,7 @@ class SignUp extends StatelessWidget {
                     );
                   },
                 )),
-            Padding(
-                padding: EdgeInsets.all(10.0),
-                child: SignInButton(
-                  Buttons.Google,
-                  text: "Sign up with Google",
-                  onPressed: () {},
-                )),
+
 
             Padding(
               padding: const EdgeInsets.all(10.0),
@@ -75,7 +70,9 @@ class SignUp extends StatelessWidget {
                 },
                 backgroundColor: Colors.teal,
                 width: 220.0,
-              ),),
+              ),
+            ),
+
           ]),
         ));
   }

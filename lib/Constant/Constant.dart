@@ -6,7 +6,7 @@ ANIMATED_SPLASH = '/SplashScreen',
     Notifications_CONTAINER_SCREEN = '/NotificationsScreen',
     ALBUM_CONTAINER_SCREEN = '/AlbumContainerScreen',
     ACCOMMODATION_CONTAINER_SCREEN ='/AccommodationContainerScreen',
-    ADVENTURES_CONTAINER_SCREEN = '/AdventuresContainerScreen'
-
+    ADVENTURES_CONTAINER_SCREEN = '/AdventuresContainerScreen',
+    SETTING_CONTAINER_SCREEN =  '/SettingContainerScreen'
 
 ;

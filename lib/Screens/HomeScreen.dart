@@ -18,12 +18,14 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   final List<Widget> viewContainer = [
-    Center(child: adventuresfunc()),
+    Center(
+        child: adventuresfunc()),
     //VideoContainerScreen(),
     Accommodation(),
-  //  AlbumContainerScreen(),
-    Notifications()
+    Notifications(),
+    Settings()
   ];
+
   @override
   Widget build(BuildContext context) {
     void onTabTapped(int index) {
@@ -33,26 +35,14 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     return  Scaffold(
-      /*
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.teal,
-        title:   Text(
-          'Oman Adventure',  style: GoogleFonts.satisfy(
-          fontSize: 30,
-          fontWeight: FontWeight.bold,
-          fontStyle: FontStyle.normal,
-          color: Colors.white,),
-
-        ),
-      ),
-            */
 
       body: viewContainer[currentIndex],
       bottomNavigationBar:   BottomNavigationBar(
           onTap: onTabTapped, // new
           currentIndex: currentIndex,
-          fixedColor: Colors.teal,
+         // fixedColor: Colors.teal,
+          selectedItemColor: Colors.teal,
+          unselectedItemColor: Colors.teal,
           items: const [
             BottomNavigationBarItem(
               icon:    Icon(Icons.category),
@@ -65,8 +55,15 @@ class HomeScreenState extends State<HomeScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications_on),
               label: "Notifications",
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: "Settings",
             )
-          ]),
+            // Color for the unselected items
+          ]
+      )
     );
     // TODO: implement build
 

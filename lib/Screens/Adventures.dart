@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:untitled/Screens/SplitScreensForm.dart';
+import 'package:untitled/Screens/signup.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,29 +20,41 @@ import 'dart:convert';
 //import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 
 class AdventuresContainerScreen extends StatefulWidget {
+
+  final String name;
+  const AdventuresContainerScreen({super.key,  required this.name});
+
   @override
   _AdventuresContainerScreenState createState() =>
-      _AdventuresContainerScreenState();
+      _AdventuresContainerScreenState(name: name);
 }
 
 class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
   late Stream<QuerySnapshot> _adventuresStream;
   late List<Map<String, dynamic>> _cachedAdventures = [];
   late SharedPreferences _prefs;
+  final String name;
 
+  _AdventuresContainerScreenState({required this.name});
+  
   @override
   void initState() {
     super.initState();
+    var adventureType = name;
+    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
+    print(adventureType);
+    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
+
     _adventuresStream = FirebaseFirestore.instance
         .collection('adventure')
-        .orderBy('AdventureCreationDate', descending: true)
+        .where("TypeOfAdventure", isEqualTo: adventureType )
+      //  .orderBy('AdventureCreationDate', descending: true)
         .snapshots();
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        _initPrefs();
         _prefs = prefs;
-
+        _initPrefs(); // Call _initPrefs() after setting _prefs variable
         final String? adventuresJson = prefs.getString('adventures');
         if (adventuresJson != null) {
           final List<dynamic> adventuresData = jsonDecode(adventuresJson);
@@ -61,7 +74,7 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OmanAdventure'),
+        title:   Text(name),
         centerTitle: true,
         backgroundColor: Colors.teal,
       ),
@@ -107,31 +120,33 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
                     children: snapshot.data!.docs.map((DocumentSnapshot document) {
                       final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                       // Convert Timestamp to DateTime
+                      print("Data received: $data"); // Add this line
                       final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
                       final DateTime creationDate = creationTimestamp.toDate();
 
                       return ReusableCard(
                         AdventureCreationDate: creationDate,
+                        AdventureID : data['AdventureID'],
                         gender: data['Gender'] ?? '',
-                        age: data['Age '] ?? '',
-                        StartDate: data['Start Date'] ?? '',
-                        EndDate: data['End tDate'] ?? '',
-                        StartTime: data['Start Time'] ?? '',
-                        EndTime: data['End Time'] ?? '',
+                        age: data['Age'] ?? '',
+                        StartDate: data['StartDate'] ?? '',
+                        EndDate: data['EndDate'] ?? '',
+                        StartTime: data['StartTime'] ?? '',
+                        EndTime: data['EndTime'] ?? '',
                         uuid: data['uuid'] ?? '',
-                        adven_provider_Name: data['service_provider_Name'] ?? '',
+                        adven_provider_Name: data['ServiceProviderName'] ?? '',
                         count: data['count'] ?? '',
-                        type_of_Adventure: data['Type of Adventure'] ?? '',
-                        Phone_Number: data['Phone Number'] ?? '',
-                        difficultyLevel: data['Level of Difficulty'] ?? '',
-                        adventureNature: data['Adventure Nature '] ?? '',
-                        freeAdventure: data['Is Free Adventure'] ?? '',
-                        onlyFamilies: data['Is only family '] ?? '',
+                        type_of_Adventure: data['TypeOfAdventure'] ?? '',
+                        Phone_Number: data['PhoneNumber'] ?? '',
+                        difficultyLevel: data['LevelOfDifficulty'] ?? '',
+                        adventureNature: data['AdventureNature'] ?? '',
+                        freeAdventure: data['IsFreeAdventure'] ?? '',
+                        onlyFamilies: data['IsOnlyFamily'] ?? '',
                         price: data['Price'] ?? '',
-                        max_number_of_Participants: data['Max number of Participants'] ?? '',
-                        googleMapsLink: data['googleMapsLink '] ?? '',
-                        adventureDescription: data['Adventure Description'] ?? '',
-                        locationName: data['The name of the location '] ?? '',
+                        max_number_of_Participants: data['MaxNumberOfParticipants'] ?? '',
+                        googleMapsLink: data['googleMapsLink'] ?? '',
+                        adventureDescription: data['AdventureDescription'] ?? '',
+                        locationName: data['TheNameOfTheLocation'] ?? '',
                       );
                     }).toList(),
                   );
@@ -160,6 +175,7 @@ class ReusableCard extends StatelessWidget {
 
 
   final DateTime AdventureCreationDate;
+  final String  AdventureID;
   final String uuid;
   final String count;
   final String adven_provider_Name;
@@ -188,6 +204,7 @@ class ReusableCard extends StatelessWidget {
   ReusableCard({
 
     required this.AdventureCreationDate,
+    required this.AdventureID,
     required this.uuid,
     required this.count,
     required this.adven_provider_Name,
@@ -336,9 +353,6 @@ class ReusableCard extends StatelessWidget {
                ),
              ],
            ),
-
-
-
            Row(
 //mainAxisAlignment:MainAxisAlignment.start,
              crossAxisAlignment: CrossAxisAlignment.center,
@@ -401,22 +415,9 @@ class ReusableCard extends StatelessWidget {
                ),
              ],
            ),
-        /*
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               Icon(
-                 Icons.map,
-                 color: Colors.teal,
-               ),
-             ],
-           ),
-*/
            const SizedBox(
              height: 8,
            ),
-
-
            Align(
              alignment: Alignment.centerLeft,
              //NameoftheHotel
@@ -426,11 +427,9 @@ class ReusableCard extends StatelessWidget {
                style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
              ),
            ),
-
            const SizedBox(
              height: 8,
            ),
-
            Row(
              crossAxisAlignment: CrossAxisAlignment.center,
              children: <Widget>[
@@ -482,8 +481,87 @@ class ReusableCard extends StatelessWidget {
 
                ElevatedButton(
                  onPressed: () {
-                   Navigator.of(context).restorablePush(_dialogBuilder);
-                   print("Go to next page for signup");
+
+                   User? user = FirebaseAuth.instance.currentUser;
+                   String userId = "";
+                   if (user != null) {
+                     userId = user.uid;
+                     print('Current User ID: $userId');
+                     // Navigate to My Custom Form
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) =>  MyCustomForm(
+
+                      // ----- This Goes to the Next Screen for confirmation
+                       AdventureCreationDate : AdventureCreationDate,
+                       uuid :uuid,
+                       AdventureID :AdventureID,
+                       count    :count,
+                       adven_provider_Name  :adven_provider_Name,
+                       type_of_Adventure  :type_of_Adventure,
+                       adventureDescription:adventureDescription,
+                       Phone_Number:Phone_Number,
+                       difficultyLevel :difficultyLevel,
+
+                       StartDate :StartDate,
+                       EndDate:EndDate,
+                       StartTime:StartTime,
+                       EndTime:EndTime,
+
+                       onlyFamilies:onlyFamilies,
+                       adventureNature:adventureNature,
+                       age:age,
+                       gender:gender,
+
+                       freeAdventure:freeAdventure,
+                       price:price,
+                       max_number_of_Participants:max_number_of_Participants,
+                       googleMapsLink:googleMapsLink,
+                       locationName:locationName,
+
+
+
+                       )),
+                     );
+                   }  else {
+                     print('No user is currently logged in.');
+                     // User is not logged in, show an alert
+                     showDialog(
+                       context: context,
+                       builder: (BuildContext context) {
+                         return AlertDialog(
+                           title: Text("Login Required"),
+                           content: Text("Please login to check your profile."),
+                           actions: [
+                             TextButton(
+                               onPressed: () {
+                                 Navigator.of(context).pop();
+                               },
+                               child: Text("Ok"),
+                             ),
+
+                             TextButton(
+                               onPressed: () {
+                                 // Navigate to the login screen or any other desired screen
+                                 Navigator.pushReplacement(
+                                   context,
+                                   MaterialPageRoute(
+                                     builder: (context) => SignUp(),
+                                   ),
+                                 );
+                               },
+                               child: const Text("Let's login"),
+                             ),
+                           ],
+                         );
+                       },
+                     );
+
+                   }
+
+
+               //    Navigator.of(context).restorablePush(_dialogBuilder);
+
                  },
                  style: TextButton.styleFrom(
                    shape: RoundedRectangleBorder(
@@ -512,80 +590,6 @@ class ReusableCard extends StatelessWidget {
 
 
 
-  static Route<Object?> _dialogBuilder(BuildContext context, Object? arguments) {
-    return DialogRoute<void>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          scrollable: true, //<--Set it to true
-          content: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-          Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: TextButton.icon(
-            onPressed: null,
-            icon: const Icon(Icons.tag_faces_outlined, color: Colors.red),
-            label: const Text(
-              "Login to start your adventure",
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.normal,
-                color: Colors.teal,
-              ),
-            ),
-          ),
-        ),
-       Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SignInButton(
-            Buttons.Email,
-            text: "Signup with Email",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SignUpScreen(sourceScreen: 'AdventuresScreen')),
-              );
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SignInButtonBuilder(
-            text: 'Sign In with Email',
-            icon: Icons.email,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmailLogIn()),
-              );
-            },
-            backgroundColor: Colors.teal,
-            width: 220.0,
-          ),
-        ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: SignInButtonBuilder(
-                    text: 'continue for testing',
-                    icon: Icons.two_wheeler,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyCustomForm() ),
-                      );
-                    },
-                    backgroundColor: Colors.red,
-                    width: 220.0,
-                  ),
-                ),
-
-              ],
-          ),
-    ),
-    );
-  }
 
 
 
