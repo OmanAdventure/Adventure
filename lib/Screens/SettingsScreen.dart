@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/Constant/Constant.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
 import 'package:untitled/Screens/signup.dart';
 import 'package:untitled/Screens/userProfile.dart';
@@ -24,10 +25,10 @@ class Settings extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
-          title: Column(
+          title: const Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:  const [
+            children:  [
               SizedBox(height: 10.0),
               Text(
                 'Settings',
@@ -42,7 +43,7 @@ class Settings extends StatelessWidget {
 
         ),
         body: // MyApp(),
-        settingsState(),
+        const settingsState(),
       ),
     );
   }
@@ -58,7 +59,7 @@ class _MySettingsState extends  State<settingsState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFeaeaea),
+      backgroundColor: const Color(0xFFeaeaea),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -73,7 +74,7 @@ class _MySettingsState extends  State<settingsState> {
                 String userId = "";
                 if (user != null) {
                   userId = user.uid;
-                  print('Current User ID: $userId');
+                  print('Current User ID -->: $userId');
                   // Navigate to My Profile screen
                   Navigator.push(
                     context,
@@ -87,25 +88,21 @@ class _MySettingsState extends  State<settingsState> {
                   context: context,
                   builder: (BuildContext context) {
                   return AlertDialog(
-                  title: Text("Login Required"),
-                  content: Text("Please login to check your profile."),
+                  title: const Text("Login Required"),
+                  content: const Text("Please login to check your profile."),
                   actions: [
                   TextButton(
                   onPressed: () {
                   Navigator.of(context).pop();
                   },
-                  child: Text("Ok"),
+                  child: const Text("Ok"),
                   ),
 
                     TextButton(
                       onPressed: () {
-                        // Navigate to the login screen or any other desired screen
-                        Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SignUp(),
-                                ),
-                               );
+                        Navigator.of(context).pop(); // Close the dialog
+                        _logout();
+
                              },
                              child: const Text("Let's login"),
                            ),
@@ -118,6 +115,7 @@ class _MySettingsState extends  State<settingsState> {
 
               },
             ),
+
             _buildButton(
               context,
               text: 'My Adventure',
@@ -134,7 +132,7 @@ class _MySettingsState extends  State<settingsState> {
                 // Navigate to Payment Method screen
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  PaymentScreen()),
+                  MaterialPageRoute(builder: (context) =>  const PaymentScreen()),
                 );
               },
             ),
@@ -145,6 +143,7 @@ class _MySettingsState extends  State<settingsState> {
 
               onTap: () => shareApp(),
             ),
+
             /*
             _buildButton(
               context,
@@ -155,6 +154,7 @@ class _MySettingsState extends  State<settingsState> {
               },
             ),
             */
+
             _buildButton(
               context,
               text: 'Terms and Conditions',
@@ -163,12 +163,40 @@ class _MySettingsState extends  State<settingsState> {
                 // Navigate to Terms and Conditions screen
               },
             ),
+
             _buildButton(
               context,
               text: 'Privacy Policy',
               icon: Icons.privacy_tip_outlined,
               onTap: () {
                 // Navigate to Privacy Policy screen
+              },
+            ),
+
+
+            if (FirebaseAuth.instance.currentUser == null) // Check if user is logged in
+            _buildButton(
+              context,
+              text:  'Sign In' ,
+              icon: Icons.account_circle_outlined,
+              onTap: () {
+
+                FirebaseAuth auth = FirebaseAuth.instance;
+                auth.signOut().then((res) {
+
+
+                  // Navigate to a different screen and remove the current screen with the bottom navigation bar
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignUp(),
+                    ),
+                        (route) => false, // This condition ensures that all routes are removed
+                  );
+
+
+                });
+
               },
             ),
             if (FirebaseAuth.instance.currentUser != null) // Check if user is logged in
@@ -192,17 +220,17 @@ class _MySettingsState extends  State<settingsState> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Logout'),
-          content: Text('Are you sure you want to log out?'),
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             TextButton(
-              child: Text('Logout'),
+              child: const Text('Logout'),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
                 _logout();
@@ -223,12 +251,14 @@ class _MySettingsState extends  State<settingsState> {
       await FirebaseAuth.instance.signOut();
 
       // Navigate to the login screen or any other desired screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SignUp(),
-        ),
-      );
+      FirebaseAuth auth = FirebaseAuth.instance;
+      auth.signOut().then((res) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => SignUp()),
+                (Route<dynamic> route) => false);
+      });
+
       // Replace '/login' with your desired route
     } catch (e) {
       print("Error during logout: $e");
@@ -253,18 +283,18 @@ class _MySettingsState extends  State<settingsState> {
       onTap: onTap,
       child: Container(
         height: 56,
-        padding: EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
             Icon(icon),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 text,
-                style: Theme.of(context).textTheme.bodyText1,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
-            Icon(Icons.arrow_forward_ios),
+            const Icon(Icons.arrow_forward_ios),
           ],
         ),
       ),

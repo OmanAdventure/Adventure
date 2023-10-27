@@ -26,7 +26,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(AdventureForm());
+  runApp(const AdventureForm());
 }
 
 class AdventureForm extends StatelessWidget {
@@ -109,7 +109,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
   DateTime now = DateTime.now();
 
-
+  // String adventurePrice = "";
 
   // Time and date picker
   late DateTime selectedDateTime;
@@ -124,11 +124,13 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
   // Those variables to be printed/stored and sent to db
  // String provider_Name = "";
-  String difficultyLevel = '';
+  String difficultyLevel = 'Easy';
   String easy = 'Easy';
   String moderate = 'Moderate';
   String challenging = 'Challenging';
-  String onlyFamilies = '';
+  String onlyFamilies = 'No';
+  String  equipmentProvided = '';
+  bool isEquipmentProvided = false; // Initial state is "No"
   String adventureNature = '';
   String gender = '';
   String age = '';
@@ -199,7 +201,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
       length = value.length;
     });
 
-    if (length == 16) {
+    if (length == 5) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -630,9 +632,9 @@ class _AdventureFormState extends State<AdventureFormPage> {
                                     // size: 18.0,
                                     color: Colors.white,
                                   ),
-                                    Text('  End Date:    $_EndDate '),
+                                    Text('  End Date:   $_EndDate '),
                                   Text(
-                                       '    $_EndTime',
+                                       '  $_EndTime',
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -808,12 +810,13 @@ class _AdventureFormState extends State<AdventureFormPage> {
                            onlyFamilies = 'No';
                            print(onlyFamilies);
                          } else  {
-                           onlyFamilies = 'Only Families';
+                           onlyFamilies = 'Yes, Only Families';
                            print(onlyFamilies);
                          }
                        });
                     },
                   ),
+                  Text(onlyFamilies),
                 ],
               ),
             ),
@@ -1208,24 +1211,56 @@ class _AdventureFormState extends State<AdventureFormPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  const Text( 'Free Adventure:',
+                  const Text( 'Is equipment provided?',
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold) ),
                   const Spacer(),
                   Switch(
                     activeColor: Colors.teal,
-                    value: !_showTextFieldforFreeAdventure,
+                    value: isEquipmentProvided,
                     onChanged: (value) {
                       setState(() {
-                        if (_showTextFieldforFreeAdventure = !_showTextFieldforFreeAdventure) {
-                          freeAdventure = 'No';
-                          print(freeAdventure);
-                        } else  {
-                          freeAdventure = "Free Adventure";
-                          print(freeAdventure);
+                        isEquipmentProvided = value;
+                        if (isEquipmentProvided == false) {
+                          equipmentProvided = 'No';
+                        }
+                        print(equipmentProvided);
+                        if (isEquipmentProvided == true) {
+                          equipmentProvided = 'Yes';
+                          print(equipmentProvided);
                         }
                       });
                     },
                   ),
+                  Text(equipmentProvided),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 20, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  const Text( 'Is free Adventure?',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold) ),
+                  const Spacer(),
+                  Switch(
+                    activeColor: Colors.teal,
+                    value: !_showTextFieldforFreeAdventure, // true by default
+                    onChanged: (value) {
+                      setState( () {
+                        if (_showTextFieldforFreeAdventure = !_showTextFieldforFreeAdventure) {
+                          freeAdventure = 'No';
+                          print(freeAdventure);
+                          priceController.text = " ";
+                        } else  {
+                          freeAdventure = "Yes";
+                          priceController.text = "0.0";
+                          print(freeAdventure);
+                        }
+                      } );
+                    },
+                  ),
+                  Text(freeAdventure),
                 ],
               ),
             ),
@@ -1237,19 +1272,26 @@ class _AdventureFormState extends State<AdventureFormPage> {
                 child: ListTile(
                   leading: const Icon(Icons.monetization_on),
                   title:TextField(
-                    inputFormatters: <TextInputFormatter>[CurrencyTextInputFormatter(
+                    inputFormatters: <TextInputFormatter>[ CurrencyTextInputFormatter (
                         locale: 'en_US',
                         decimalDigits: 0,
                         symbol: 'OMR '
-                    )],
+                    ) ],
                     keyboardType: TextInputType.number,
-                    maxLength: 10,
+                    maxLength: 7,
                     controller: priceController,
+
                     onChanged: (adventurePrice) {
-                      if (_onChangedPrice == true) {
+                      if (freeAdventure == "Yes") {
+                          priceController.text = "0.0";
+
+                      }  if (freeAdventure == "No") {
+                        priceController.text = "";
                         priceController.text = adventurePrice;
                       }
                     },
+
+
                     decoration: const InputDecoration(
                       hintText: "Price",
                       enabledBorder: UnderlineInputBorder(
@@ -1383,54 +1425,225 @@ class _AdventureFormState extends State<AdventureFormPage> {
         )
     ),
 
-  //-----------------------------------------------------------
+
     Step(
-        state: StepState.complete,
-        isActive: _activeCurrentStep >= 4,
-        title: const Text('Confirmation'),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            // Step 1 Service Provider Details
-            const Text('----------Service Provider Details-----------',style: TextStyle(fontWeight: FontWeight.bold,),),
-            Text('Type of Adventure: ${advenproviderName.text}' ),
-            Text('Type of Adventure: ${adventuresdropdown}' ),
-             Text('Adventure Description: ${adventureDescription.text}'),
-             Text('Phone Number: ${phoneController.text}'),
-            Text('Level of Difficulty : ${difficultyLevel}'),
+      state: StepState.complete,
+      isActive: _activeCurrentStep >= 4,
+      title: const Text('Confirmation'),
+      content: Card(
+        elevation: 4, // Add elevation for a card-like appearance
+        margin: const EdgeInsets.all(12.0), // Add some margin for spacing
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Step 1 Service Provider Details
+              const Text(
+                'Service Provider Details',
+                style: TextStyle(fontWeight: FontWeight.bold , decoration: TextDecoration.underline),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8,),
 
-            const Text('-------------Date and Time--------------',style: TextStyle(fontWeight: FontWeight.bold,),),
-            // Step 2 Date and Time
-            Text('Start Date : ${_StartDate}'),
-            Text('End Date: ${_EndDate}'),
-            Text('Start Time: ${_StartTime}'),
-            Text('End Time: ${_EndTime}'),
+              const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Adventure provider: '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
 
-            const Text('-------------Participants Details--------------',style: TextStyle(fontWeight: FontWeight.bold,),),
-            // Step 3 Participants Details
-            Text('Is only family : ${onlyFamilies}'),
-            Text('Adventure Nature : $adventureNature'),
-            Text('Gender : $gender'),
-            Text('Age : $age'),
+                  ]
+              ),
+              Text('${advenproviderName.text}'  ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Adventure Type: '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${adventuresdropdown}'  ),
+                  ]
+              ),
+              const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Adventure Description:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
 
-            const Text('-------------Price & Location--------------',style: TextStyle(fontWeight: FontWeight.bold,),),
-            // Step 4 Price & Location
-            Text( "Is Free Adventure:  ${freeAdventure}"),
-            Text('Price : ${priceController.text}'),
-            Text('Max number of Participants : ${maxNumController.text}'),
-          //  Text('Latitude : $Lat'),
-          //  Text('Longitude : $Long'),
-          //  Text('googleMapsLink : $googleMapsLink'),
-           // Text('The name of the location : $locationName'),
+                  ]
+              ),
+              Text('${adventureDescription.text}'  ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Phone Number:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${phoneController.text}'  ),
+                  ]
+              ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Level of Difficulty:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${difficultyLevel}'  ),
+                  ]
+              ),
+              // Step 2 Date and Time
+              const Divider(), // Add a divider for separation
+              const Text(
+                'Date and Time',
+                style: TextStyle(fontWeight: FontWeight.bold,   decoration: TextDecoration.underline  ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8,),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text('Start Date:   '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                   Text('${_StartDate}'  ),
+                     ]
+              ),
 
-            Text('googleMapsLink : ${LocationLink.text}'),
-            Text('The name of the location : ${locationName.text}  '),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('End Date:     '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${_EndDate}'  ),
+                  ]
+              ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Start Time:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${_StartTime}'  ),
+                  ]
+              ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('End Time:    '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${_EndTime}'  ),
+                  ]
+              ),
 
-            SizedBox(height: 10,),
+              // Step 3 Participants Details
+              const Divider(),
+              const Text(
+                'Participants Details',
+                style: TextStyle(fontWeight: FontWeight.bold , decoration: TextDecoration.underline),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8,),
 
-          ],
-        ))
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Is Only Family:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${onlyFamilies}'  ),
+                  ]
+              ),
+
+              const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Adventure Nature:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                  ]
+              ),
+              Text('${adventureNature}'  ),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Gender  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${gender}'  ),
+                  ]
+              ),
+
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Age  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${age}'  ),
+                  ]
+              ),
+
+              // Step 4 Price & Location
+              const Divider(),
+              const Text(
+                'Price & Location',
+                style: TextStyle(fontWeight: FontWeight.bold , decoration: TextDecoration.underline),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8,),
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Is Equipment Provided:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${equipmentProvided}'  ),
+                  ]
+              ),
+
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Is Free Adventure:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${freeAdventure}'  ),
+                  ]
+              ),
+
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Price:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${priceController.text}'  ),
+                  ]
+              ),
+
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Max Number of Participants:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                    Text('${maxNumController.text}'  ),
+                  ]
+              ),
+               const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Location Name:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                  ]
+              ),
+              Text('${locationName.text}'  ),
+              const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Google Maps Link:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                  ]
+              ),
+              Text('${LocationLink.text}'  ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    )
+
 
   ];
 
@@ -1477,12 +1690,12 @@ class _AdventureFormState extends State<AdventureFormPage> {
               if (_activeCurrentStep == 0) {
                 return Row(
                   children: <Widget>[
-                    Spacer(),
+                    const Spacer(),
                     ElevatedButton(
                       onPressed: controlsDetails.onStepContinue,
                       child: const Text('NEXT'),
                     ),
-                    SizedBox(width: 8.0),
+                    const SizedBox(width: 8.0),
                   ],
                 );
               } else if (_activeCurrentStep == stepList().length - 1) {
@@ -1492,19 +1705,283 @@ class _AdventureFormState extends State<AdventureFormPage> {
                       onPressed: controlsDetails.onStepCancel,
                       child: const Text('BACK'),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     ElevatedButton(
                       onPressed: () {
-                      _submitForm();
+                        // ----------- Validation ----------------------
+                        // Validate the required text fields
+                        if (advenproviderName.text == '' ||
+                            advenproviderName.text.isEmpty ||
+                            adventuresdropdown.isEmpty ||
+                            adventureDescription.text.isEmpty ||
+                            phoneController.text.isEmpty ||
+                            priceController.text.isEmpty ||
+                            maxNumController.text.isEmpty ||
+                            maxNumController.text == "" ||
+                            gender.isEmpty ||
+                            gender == "" ||
+                            age.isEmpty ||
+                            age.isEmpty ||
+                            adventureNature.isEmpty ||
 
-                       Navigator.pop(context);
+                            locationName.text.isEmpty ||
+                            locationName.text == "" ||
 
+                            LocationLink.text.isEmpty ||
+                            LocationLink.text == ""
+                        ) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill all required fields'),
+                                backgroundColor: Colors.red, // set the background color to red
+                              )
+                          );
+                          setState(() {
+                            _isSubmitting = false;
+                          });
+                          return;
+                        }
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+
+                              title: const Text('Your Adventure Details',
+                                style: TextStyle(fontWeight: FontWeight.bold , color: Colors.teal),
+                              textAlign: TextAlign.center, ),
+
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    // Step 1 Service Provider Details
+                                    const Text(
+                                      'Service Provider Details',
+                                      style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                                      textAlign: TextAlign.center,
+
+                                    ),
+                                    const SizedBox(height: 8,),
+
+                                    const Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Adventure provider: '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                                        ]
+                                    ),
+                                    Text('${advenproviderName.text}'  ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Adventure Type: '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${adventuresdropdown}'  ),
+                                        ]
+                                    ),
+                                    const Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Adventure Description:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                                        ]
+                                    ),
+                                    Text('${adventureDescription.text}'  ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Phone Number:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${phoneController.text}'  ),
+                                        ]
+                                    ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Level of Difficulty:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${difficultyLevel}'  ),
+                                        ]
+                                    ),
+                                    // Step 2 Date and Time
+                                    const Divider(), // Add a divider for separation
+                                    const Text(
+                                      'Date and Time',
+                                      style: TextStyle(fontWeight: FontWeight.bold,   decoration: TextDecoration.underline ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8,),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Start Date:   '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${_StartDate}'  ),
+                                        ]
+                                    ),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('End Date:     '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${_EndDate}'  ),
+                                        ]
+                                    ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Start Time:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${_StartTime}'  ),
+                                        ]
+                                    ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('End Time:    '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${_EndTime}'  ),
+                                        ]
+                                    ),
+
+                                    // Step 3 Participants Details
+                                    const Divider(),
+                                    const Text(
+                                      'Participants Details',
+                                      style: TextStyle(fontWeight: FontWeight.bold , decoration: TextDecoration.underline),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8,),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Is Only Family:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${onlyFamilies}'  ),
+                                        ]
+                                    ),
+
+                                    const Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Adventure Nature:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                                        ]
+                                    ),
+                                    Text('${adventureNature}'  ),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Gender  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${gender}'  ),
+                                        ]
+                                    ),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Age  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${age}'  ),
+                                        ]
+                                    ),
+
+                                    // Step 4 Price & Location
+                                    const Divider(),
+                                    const Text(
+                                      'Price & Location',
+                                      style: TextStyle(fontWeight: FontWeight.bold , decoration: TextDecoration.underline),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8,),
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Is Equipment Provided:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${equipmentProvided}'  ),
+                                        ]
+                                    ),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Is Free Adventure:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${freeAdventure}'  ),
+                                        ]
+                                    ),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Price:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${priceController.text}'  ),
+                                        ]
+                                    ),
+
+                                    Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Text('Max Number of Participants:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+                                          Text('${maxNumController.text}'  ),
+                                        ]
+                                    ),
+                                    const Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Location Name:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                                        ]
+                                    ),
+                                    Text('${locationName.text}'  ),
+                                    const Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Google Maps Link:  '  ,  style: TextStyle(fontWeight: FontWeight.bold) ),
+
+                                        ]
+                                    ),
+                                    Text('${LocationLink.text}'  ),
+                                    const SizedBox(height: 10),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    // Perform your submit action
+                                    _submitForm();
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Yes, Submit'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('No'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
-
-
                       child: const Text('SUBMIT'),
                     ),
-                    SizedBox(width: 8.0),
+
+                    const SizedBox(width: 8.0),
                   ],
                 );
               } else {
@@ -1514,12 +1991,12 @@ class _AdventureFormState extends State<AdventureFormPage> {
                       onPressed: controlsDetails.onStepCancel,
                       child: const Text('BACK'),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     ElevatedButton(
                       onPressed: controlsDetails.onStepContinue,
                       child: const Text('NEXT'),
                     ),
-                    SizedBox(width: 8.0),
+                    const SizedBox(width: 8.0),
                   ],
                 );
               }
@@ -1566,40 +2043,30 @@ class _AdventureFormState extends State<AdventureFormPage> {
 
 // ---------------------- To Firebase ----------------------
 
+
+
   Future<void> _submitForm() async {
     setState(() {
       _isSubmitting = true;
-          });
+    });
 
+    Container(
+      color: Colors.white,  // Set the background color to white
+      child: Center(
+        child: _isSubmitting
+            ? CircularProgressIndicator()
+            : Container(
+          // Your white box content
+          width: 100.0,
+          height: 100.0,
+          color: Colors.white,
+          child: Text(''),
+        ),
+      ),
+    );
 
     // ----------- Validation ----------------------
-    // Validate the required text fields
-    if (advenproviderName.text == '' ||
-        advenproviderName.text.isEmpty ||
-        adventuresdropdown.isEmpty ||
-        adventureDescription.text.isEmpty ||
-        phoneController.text.isEmpty ||
-         priceController.text.isEmpty ||
-        maxNumController.text.isEmpty ||
-        maxNumController.text == "" ||
-        gender.isEmpty ||
-        gender == "" ||
-        age.isEmpty ||
-        age.isEmpty ||
-        adventureNature.isEmpty
 
-         ) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please fill all required fields'),
-            backgroundColor: Colors.red, // set the background color to red
-          )
-      );
-      setState(() {
-        _isSubmitting = false;
-      });
-      return;
-    }
 /*
     if (LocationLink == null || LocationLink == "" ) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1614,7 +2081,6 @@ class _AdventureFormState extends State<AdventureFormPage> {
       return;
     }
 */
-
 /*
     if (googleMapsLink == null || googleMapsLink.isEmpty ) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1724,7 +2190,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
     print("I  am about  to submit this form ++++++++++++++++");
     try {
       // Generate a UUID
-      final uuid = Uuid().v4();
+      final uuid = const Uuid().v4();
       print("I am trying to submit this form ++++++++++++++++");
       // Increment the adventure count
       final doc = await FirebaseFirestore.instance.collection('adventure_count').doc('count').get();
@@ -1753,6 +2219,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
         'Gender' : gender ,
         'Age': age ,
 
+        "IsequipmentProvided" : equipmentProvided,
         "IsFreeAdventure" : freeAdventure,
         'Price' : priceController.text,
         'MaxNumberOfParticipants' :  maxNumController.text,
@@ -1771,6 +2238,7 @@ class _AdventureFormState extends State<AdventureFormPage> {
           const SnackBar(content: Text('Adventure submitted successfully')));
       setState(() {
         _isSubmitting = false;
+        Navigator.pop(context);
       });
     } catch (error) {
       print(error);
@@ -1838,8 +2306,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
           data: ThemeData.light().copyWith(
             primaryColor: Colors.teal, // Change this to the desired teal color
             hintColor: Colors.teal, // Change this to the desired teal color
-            colorScheme: ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+            colorScheme: const ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
+            buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
         );
@@ -1857,8 +2325,8 @@ class _AdventureFormState extends State<AdventureFormPage> {
           data: ThemeData.light().copyWith(
             primaryColor: Colors.teal, // Change this to the desired teal color
             hintColor: Colors.teal, // Change this to the desired teal color for time picker
-            colorScheme: ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+            colorScheme: const ColorScheme.light(primary: Colors.teal), // Change this to the desired teal color
+            buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
         );

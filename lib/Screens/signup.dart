@@ -8,8 +8,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-
 class SignUp extends StatelessWidget {
+  static const String routeName = '/SignUp';
   final String title = "Let's Adventure";
   final Icon icons = Icon(Icons.hiking);
   @override
@@ -74,6 +74,10 @@ class SignUp extends StatelessWidget {
             ),
 
           ]),
-        ));
+        ),
+      bottomNavigationBar: null, // Set bottomNavigationBar to null to remove it
+
+
+    );
   }
 }

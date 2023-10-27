@@ -1,35 +1,27 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_list.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:untitled/Screens/NotificationDetails.dart';
-import 'package:untitled/Screens/SplitScreensForm.dart';
-import 'package:untitled/Screens/signup.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'email_login.dart';
-import 'email_signup.dart';
-import 'CustomerAdventureForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'SettingsScreen.dart';
+
+import 'package:untitled/Screens/signup.dart';
 
 void main() => runApp(
-    Notifications()
+    const Notifications()
 );
 
 class Notifications extends StatelessWidget {
-  Notifications();
+  const Notifications();
+
+  static const route = '/NotificationsScreen';
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return  const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: MyNotificationState(),
@@ -39,15 +31,15 @@ class Notifications extends StatelessWidget {
 }
 
 class MyNotificationState extends StatefulWidget {
-  MyNotificationState({Key? key}) : super(key: key);
+  const MyNotificationState({Key? key}) : super(key: key);
   @override
   State<MyNotificationState> createState() => _MyNotificationContainerState();
 }
 
 class _MyNotificationContainerState extends State<MyNotificationState> {
   late Stream<QuerySnapshot> _adventuresStream;
-  late List<Map<String, dynamic>> _cachedAdventures = [];
-  late SharedPreferences _prefs;
+ // late List<Map<String, dynamic>> _cachedAdventures = [];
+ // late SharedPreferences _prefs;
 
   @override
   void initState() {
@@ -57,19 +49,14 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
     String userId = "";
     if (user != null) {
       userId = user.uid;
-
     }
 
-    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
-    print(userId);
-    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
-
     _adventuresStream = FirebaseFirestore.instance
-        .collection('BookedAdventure')
-        .where("UserID", isEqualTo: userId )
-    //  .orderBy('AdventureCreationDate', descending: true)
+        .collection('BookedAdventure').where("UserID", isEqualTo: userId )
+        //.orderBy('AdventureBookingDate', descending: true)
         .snapshots();
-
+// -----------------------------------------
+    /*
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _prefs = prefs;
@@ -83,22 +70,35 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
         }
       });
     });
+    */
   }
 
+/*
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
   }
+ */
+
+  // ----------------------------------------------------
+
 
   @override
   Widget build(BuildContext context) {
+
+    // to get the notification message
+    final message = ModalRoute.of(context)!.settings.arguments;
+    print("Notification Message");
+    print(message);
+
+
     return Scaffold(
-      backgroundColor: Color(0xFFeaeaea),
+      backgroundColor: const Color(0xFFeaeaea),
       appBar: AppBar(
         backgroundColor: Colors.teal,
-        title: Column(
+        title: const Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             SizedBox(height: 10.0),
             Text(
               'Notifications',
@@ -124,19 +124,20 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
 
                   User? user = FirebaseAuth.instance.currentUser;
-print(user);
-                  if (snapshot.hasError && user != null) {
+
+                  if ( user  == null ) {
                     return  AlertDialog(
-                      title: const Text('Login is Required '),
+                      title: const Text('Login is Required'),
                       content: const Text("Please login to view your notifications"),
                       actions: <Widget>[
+
                         TextButton(
-                          // color: Colors.teal,
-                          child:  const Text("OK", textAlign: TextAlign.center, style:  TextStyle(color: Colors.white) ) ,
+                          child:  const Text("Log In", textAlign: TextAlign.center, style:  TextStyle( color: Colors.teal, fontWeight: FontWeight.bold , fontSize: 15 ) ) ,
                           onPressed: () {
-                            Navigator.of(context).pop();
+                            _logout(context);
                           },
                         ),
+
                       ],
                     );
                       //const Text('Something went wrong');
@@ -168,16 +169,27 @@ print(user);
                     );
                   }
 
+                  // Extract the documents from the snapshot
+                  final List<DocumentSnapshot> documents = snapshot.data?.docs ?? [];
+
+                  // Convert the documents to a list of Map<String, dynamic>
+                  List<Map<String, dynamic>> adventuresData = documents.map((doc) {
+                    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    // Convert 'AdventureBookingDate' to DateTime
+                    data['AdventureBookingDate'] = (data['AdventureBookingDate'] as Timestamp).toDate();
+                    return data;
+                  }).toList();
+
+                  // Sort the list by 'AdventureBookingDate' Z-A
+                  adventuresData.sort((a, b) => b['AdventureBookingDate'].compareTo(a['AdventureBookingDate']));
+
                   return Column(
-                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                      final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                      // Convert Timestamp to DateTime
-                      print("Data received: $data"); // Add this line
-                      final Timestamp creationTimestamp = data['AdventureBookingDate'] as Timestamp;
-                      final DateTime AdventureBookingDate = creationTimestamp.toDate();
+                    children: adventuresData.map((data) {
+                   // print("Data received: $data");
+
 
                       return ReusableCard(
-                        AdventureBookingDate: AdventureBookingDate,
+                        AdventureBookingDate: data['AdventureBookingDate'] ?? '',
                         BookingStatus: data['BookingStatus'] ?? '',
                         AdventureBookingID: data['AdventureBookingID'] ?? '',
                         Gender: data['Gender'] ?? '',
@@ -196,7 +208,7 @@ print(user);
                         IsOnlyFamily: data['IsOnlyFamily'] ?? '',
                         Price: data['Price'] ?? '',
                         MaxNumberOfParticipants: data['MaxNumberOfParticipants'] ?? '',
-                        googleMapsLink: data['googleMapsLink'] ?? '',
+                        googleMapsLink: data['googleMapsLink '] ?? '',
                         AdventureDescription: data['AdventureDescription'] ?? '',
                         LocationName: data['LocationName'] ?? '',
                         BookedAdventureNumber: 'BookedAdventureNumber',
@@ -255,7 +267,7 @@ class ReusableCard extends StatelessWidget {
   final String googleMapsLink;
   final String LocationName;
 
-  ReusableCard({
+  const ReusableCard({
 
     required this.AdventureBookingDate,
     required this.AdventureBookingID,
@@ -301,28 +313,30 @@ class ReusableCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const Text('🐎', style: TextStyle(fontSize: 20)),
+              const Icon(Icons.category, size: 20, color: Colors.teal,),
               //  const Icon(Icons.category_outlined, color: Colors.teal),
               const SizedBox(width: 5.0),
-              TypeOfAdventure != "" ? Text(TypeOfAdventure) : Text(''),
+              TypeOfAdventure != "" ? Text(TypeOfAdventure) : const Text(''),
               const Spacer(),
             ],
           ),
+
+     /*
           const SizedBox(height: 3),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Icon(Icons.accessibility, color: Colors.teal),
-              SizedBox(width: 5.0),
-              LevelOfDifficulty != "" ? Text(LevelOfDifficulty) : Text(''),
+              const Icon(Icons.accessibility, color: Colors.teal),
+              const SizedBox(width: 5.0),
+              LevelOfDifficulty != "" ? Text(LevelOfDifficulty) : const Text(''),
             ],
           ),
-
+*/
           const SizedBox(height: 10),
           //Text
           Align(
             alignment: Alignment.centerLeft,
-            //NameoftheHotel
+
             child: Text(
               ServiceProviderName != "" || ServiceProviderName.isEmpty ? ServiceProviderName : '',
               textAlign: TextAlign.left,
@@ -331,7 +345,7 @@ class ReusableCard extends StatelessWidget {
           ),
 
           Row(
-//mainAxisAlignment:MainAxisAlignment.start,
+
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
 
@@ -340,7 +354,7 @@ class ReusableCard extends StatelessWidget {
               ),
               Align(
                 alignment: Alignment.centerLeft,
-                //NameoftheHotel
+
                 child: Text(
                   LocationName ?? '',
                   textAlign: TextAlign.left,
@@ -350,22 +364,21 @@ class ReusableCard extends StatelessWidget {
 
 
 
-                Spacer(),
+                const Spacer(),
                  Align(
                    alignment: Alignment.topRight,
                    child: ElevatedButton(
                      onPressed: () {
-
                        User? user = FirebaseAuth.instance.currentUser;
                        String userId = "";
                        if (user != null) {
                          userId = user.uid;
-                         print('Current User ID: $userId');
+                      //   print('Current User ID: $userId');
                          // Navigate to Notification Details
 
                          Navigator.push(
                            context,
-                           MaterialPageRoute(builder: (context) =>  NotificationsDetailsForm(
+                           MaterialPageRoute(builder: (context) =>  NotificationsDetailsForm (
 
                              // ----- This Goes to the Next Screen for confirmation
                              AdventureBookingDate : AdventureBookingDate,
@@ -402,14 +415,15 @@ class ReusableCard extends StatelessWidget {
                        }
 
 
-                       //    Navigator.of(context).restorablePush(_dialogBuilder);
+
 
                      },
                      style: TextButton.styleFrom(
                        shape: RoundedRectangleBorder(
                          borderRadius: BorderRadius.circular(32.0),
                        ),
-                       backgroundColor: Colors.red,
+                       backgroundColor: Colors.teal,
+                       shadowColor: Colors.black,
                      ),
                      child: const Text(
                        "View",
@@ -417,23 +431,86 @@ class ReusableCard extends StatelessWidget {
                      ),
                    ),
                  )
-
             ],
           ),
-
-
-
-
         ],
       ),
-
-
     );
   }
+}
+
+
+Widget _buildButton(BuildContext context,
+    {required String text, required IconData icon, required void Function() onTap}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios),
+        ],
+      ),
+    ),
+  );
+
+
+}
 
 
 
 
 
+
+
+
+// Create a function to handle logout
+Future<void> _logout(BuildContext context) async {
+  try {
+    // Clear cached user data
+    await _clearCachedUserData();
+    // Sign out of Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Navigate to the login screen or any other desired screen
+    FirebaseAuth auth = FirebaseAuth.instance;
+    auth.signOut().then((res) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => SignUp()),
+              (Route<dynamic> route) => false);
+    });
+
+    // Replace '/login' with your desired route
+  } catch (e) {
+    print("Error during logout: $e");
+  }
+}
+
+
+// Function to clear cached user data
+Future<void> _clearCachedUserData() async  {
+
+  try {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.clear(); // Clear all cached data
+    print("Cached user data cleared");
+
+  } catch (e) {
+    print("Error clearing cached user data: $e");
+  }
 
 }

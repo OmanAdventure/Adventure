@@ -113,7 +113,7 @@ class _EmailLogInState extends State<EmailLogIn> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => adventuresfunc(),
+          builder: (context) => const adventuresfunc(),
         ),
       );
 

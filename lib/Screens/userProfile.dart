@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/main.dart';
 
-class UserModel {
+
+
+class UserModelProfile {
   final String userName;
   final String id;
   final String email;
   final String phoneNumber;
   final String gender;
 
-  UserModel({
+  UserModelProfile({
     required this.userName,
     required this.id,
     required this.email,
@@ -26,13 +29,13 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  late Future<UserModel> _userDataFuture;
-  late UserModel _user;
+  late Future<UserModelProfile> _userDataFuture;
+  late UserModelProfile _user;
 
   @override
   void initState() {
     super.initState();
-    _user = UserModel(
+    _user = UserModelProfile(
       userName: "",
       id: "",
       email: "",
@@ -43,14 +46,14 @@ class _UserScreenState extends State<UserScreen> {
     _userDataFuture = _getUserData();
   }
 
-  Future<UserModel> _getUserData() async {
+  Future<UserModelProfile> _getUserData() async {
     try {
       final User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
         await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
 
-        return UserModel(
+        return UserModelProfile(
 
           userName: userSnapshot.data()?["UserName"] ?? "",
           id: user.uid,
@@ -125,12 +128,12 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   // To fetch data once the phone number is updated
-  Future<UserModel> _fetchUserData(String userId) async {
+  Future<UserModelProfile> _fetchUserData(String userId) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
       await FirebaseFirestore.instance.collection("users").doc(userId).get();
 
-      return UserModel(
+      return UserModelProfile(
         userName: userSnapshot.data()?["userName"] ?? "",
         id: userId,
         email: userSnapshot.data()?["User Email"] ?? "",
@@ -151,7 +154,7 @@ class _UserScreenState extends State<UserScreen> {
         backgroundColor: Colors.teal,
       ),
       body: Center(
-        child: FutureBuilder<UserModel>(
+        child: FutureBuilder<UserModelProfile>(
           future: _userDataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -159,7 +162,7 @@ class _UserScreenState extends State<UserScreen> {
             } else if (snapshot.hasError) {
               return Center(child: Text("Error: ${snapshot.error}"));
             } else {
-              final UserModel user = snapshot.data!;
+              final UserModelProfile user = snapshot.data!;
               return Padding(
                 padding: EdgeInsets.all(16),
                 child: Container(

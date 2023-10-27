@@ -524,44 +524,13 @@ class ReusableCard extends StatelessWidget {
                        )),
                      );
                    }  else {
+
                      print('No user is currently logged in.');
                      // User is not logged in, show an alert
-                     showDialog(
-                       context: context,
-                       builder: (BuildContext context) {
-                         return AlertDialog(
-                           title: Text("Login Required"),
-                           content: Text("Please login to check your profile."),
-                           actions: [
-                             TextButton(
-                               onPressed: () {
-                                 Navigator.of(context).pop();
-                               },
-                               child: Text("Ok"),
-                             ),
-
-                             TextButton(
-                               onPressed: () {
-                                 // Navigate to the login screen or any other desired screen
-                                 Navigator.pushReplacement(
-                                   context,
-                                   MaterialPageRoute(
-                                     builder: (context) => SignUp(),
-                                   ),
-                                 );
-                               },
-                               child: const Text("Let's login"),
-                             ),
-                           ],
-                         );
-                       },
-                     );
+                 //    Navigator.of(context).pop(); // Close the dialog
+                     _logout(context);
 
                    }
-
-
-               //    Navigator.of(context).restorablePush(_dialogBuilder);
-
                  },
                  style: TextButton.styleFrom(
                    shape: RoundedRectangleBorder(
@@ -586,11 +555,60 @@ class ReusableCard extends StatelessWidget {
 
 
      );
+
+
+
+
+
+  }
+
+
+
+
+// Create a function to handle logout
+  Future<void> _logout(BuildContext context) async {
+    try {
+      // Clear cached user data
+      await _clearCachedUserData();
+      // Sign out of Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // Navigate to the login screen or any other desired screen
+      FirebaseAuth auth = FirebaseAuth.instance;
+      auth.signOut().then((res) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => SignUp()),
+                 (Route<dynamic> route) => false);
+      });
+
+      // Replace '/login' with your desired route
+    } catch (e) {
+      print("Error during logout: $e");
+    }
+  }
+
+
+  // Function to clear cached user data
+  Future<void> _clearCachedUserData() async  {
+
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.clear(); // Clear all cached data
+      print("Cached user data cleared");
+
+    } catch (e) {
+      print("Error clearing cached user data: $e");
+    }
+
   }
 
 
 
 
 
-
 }
+
+
+

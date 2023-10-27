@@ -68,7 +68,8 @@ dependencies:
   geocode: ^1.0.2
   geolocator: ^7.3.0
   geocoding: ^2.1.0
-
+  firebase_messaging: ^14.6.7
+  rxdart: ^0.27.7
   json_annotation: ^4.8.0
 #  google_maps_webservice: ^0.0.19
  # flutter_google_places_hoc081098: ^1.2.0
@@ -80,7 +81,7 @@ dependencies:
   firebase_storage: ^11.1.1
   uuid: ^3.0.6
   shared_preferences: ^2.2.0
-  flutter_tesseract_ocr: ^0.4.22
+ # flutter_tesseract_ocr: ^0.4.22
   image_picker: ^0.8.7+5
   camera: ^0.10.0
   flutter_localization: ^0.1.10
@@ -89,6 +90,7 @@ dependencies:
 
   flutter_map: ^5.0.0 # or the latest version that supports null safety
   flutter_typeahead: ^3.2.0
+  flutter_local_notifications: ^15.1.2
 
 dev_dependencies:
   flutter_test:

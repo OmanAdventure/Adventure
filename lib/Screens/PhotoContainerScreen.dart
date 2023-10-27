@@ -1,36 +1,26 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-//import 'package:google_nav_bar/google_nav_bar.dart';
-//import 'package:transparent_image/transparent_image.dart';
-//import 'package:getwidget/getwidget.dart';
 import 'package:untitled/Screens/userProfile.dart';
+import 'package:untitled/main.dart';
 import '/Screens/Adventures.dart';
-//import 'package:url_launcher/url_launcher.dart';
-//import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
-//import '/Screens/Accommodation.dart';
-//import '/Screens/HomeScreen.dart';
-//import 'PhotoContainerScreen.dart';
-//import 'Constant/Constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:google_sign_in/google_sign_in.dart';
-//import 'package:firebase_database/firebase_database.dart';
 import 'signup.dart';
 import 'SplitScreensForm.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
 
-
-void main() => runApp(adventuresfunc());
 
 class adventuresfunc extends StatelessWidget {
-    final String? uid;
-    adventuresfunc({this.uid});
 
+  final String? uid;
+    const adventuresfunc({super.key, this.uid});
 
   @override
   Widget build(BuildContext context) {
+
+
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -44,38 +34,41 @@ class adventures extends StatefulWidget {
   const adventures({Key? key}) : super(key: key);
   @override
   State<adventures> createState() => PhotoContainerScreen();
-
-
 }
 
 //-------------------
 class PhotoContainerScreen extends State<adventures> {
+
+
+  late Future<UserModelProfile> _userDataFuture;
+  late UserModelProfile _user;
+
+
+
   final String? uid;
   PhotoContainerScreen({this.uid});
-  late Future<UserModel> _userDataFuture;
-  late UserModel _user;
+
+
   @override
   void initState() {
     super.initState();
-    _user = UserModel(
-      userName: "",
-      id: "",
-      email: "",
-      phoneNumber: "",
-      gender: "",
-    );
+
 
     _userDataFuture = _getUserData();
+
   }
 
-  Future<UserModel> _getUserData() async {
+  Future<UserModelProfile> _getUserData() async {
     try {
       final User? user = FirebaseAuth.instance.currentUser;
+      print(user);
+
       if (user != null) {
         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
         await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
 
-        return UserModel(
+        return UserModelProfile(
+
           userName: userSnapshot.data()?["UserName"] ?? "",
           id: user.uid,
           email: user.email ?? "",
@@ -85,9 +78,15 @@ class PhotoContainerScreen extends State<adventures> {
       }
     } catch (e) {
       print("Error fetching user data: $e");
-     }
+    }
+
     return _user;
   }
+
+  // Assuming you have an instance of UserModelProfile
+  late UserModelProfile currentUser = _user; // Assign to _user
+
+  late  String userName = currentUser.userName;
 
 // for the slider indicator
   int activePage = 1;
@@ -150,19 +149,7 @@ class PhotoContainerScreen extends State<adventures> {
               },
             ),
 
-            actions: [IconButton(
 
-              onPressed: () {
-                FirebaseAuth auth = FirebaseAuth.instance;
-                auth.signOut().then((res) {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignUp()),
-                          (Route<dynamic> route) => false);
-                });
-              },
-              icon: const Icon(Icons.exit_to_app),
-            ),],
           ),
           body: Container(
 
@@ -190,40 +177,51 @@ class PhotoContainerScreen extends State<adventures> {
                              curve: Curves.ease,
                               child:    Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children:     [
+                                   children: [
 
-                                       FutureBuilder<UserModel>(
+                                      FutureBuilder<UserModelProfile>(
                                        future: _userDataFuture,
                                        builder: (context, snapshot) {
                                          if (snapshot.connectionState == ConnectionState.waiting) {
                                            return const Center(child: CircularProgressIndicator());
                                          } else if (snapshot.hasError) {
-                                           return Center(child: Text("Error: ${snapshot.error}"));
-                                         } else {
-                                           final UserModel user = snapshot.data!;
-                                           return Padding(
-                                             padding: const EdgeInsets.all(16),
-                                              child:  Row(
-                                           children: [
-                                                     const Text("Welcome back " ,
-                                                         style: TextStyle(
-                                                           fontSize: 25,
-                                                         )
-                                                     ),
-                                                   Text( user.userName,
-                                                   style: const TextStyle(
-                                                   fontSize: 25,
-                                                        )
-                                                      ),
-                                                    ],
-                                                   ),
-
+                                           return const Padding(
+                                             padding: EdgeInsets.all(16),
+                                             child: Row(
+                                               children: [
+                                                 Text("Welcome back ",
+                                                     style: TextStyle(
+                                                       fontSize: 25,
+                                                     )
+                                                 ),
+                                               ],
+                                             ),
                                            );
-                                       }
+                                          //  Center(child: Text("Error: ${snapshot.error}"));
+                                         } else {
+                                           final UserModelProfile user = snapshot.data!;
+                                           return   Padding(
+                                             padding: const EdgeInsets.all(16),
+                                             child:  Row(
+                                               children: [
+                                                 const Text("Welcome back " ,
+                                                     style: TextStyle(
+                                                       fontSize: 25,
+                                                     )
+                                                 ),
+                                                 Text( user.userName,
+                                                     style: const TextStyle(
+                                                       fontSize: 25,
+                                                     )
+                                                  ),
+                                               ],
+                                             ),
+                                           );
+                                         }
                                        },
                                      ),
 
-
+                               // ,,,,,,,,,,,,,,,,
                                    const SizedBox(
                                      child:  Padding(
                                        padding:   EdgeInsets.fromLTRB(20, 20, 0, 0),
@@ -231,9 +229,8 @@ class PhotoContainerScreen extends State<adventures> {
                                            style: TextStyle(
                                              fontSize: 15, color: Colors.grey,
                                            )),
-                                     ),
+                                        ),
                                       ),
-
                                      const SizedBox(
                                        height: 50,
                                      ),
@@ -466,26 +463,45 @@ class PhotoContainerScreen extends State<adventures> {
                                   ],
                                 ),
                               ),
+
                             ],
                           ),
                         ),
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 30,),
+
+                  /*
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(30.0, 8.0, 20.0, 8.0),
+                      child:   TextButton(
+                          onPressed: () async {
+                            // To get User Token
+                            await FirebaseMessaging.instance.getToken().then((token)  {
+                              print(" User Token is:   $token");
+                            //  initPushNotifications();
+                            });
+                          }  , child: Text('Token is'))
+                  ),
+                  */
+
                 ],
               ),
             ),
           ),
-          drawer: NavigateDrawer(uid: uid)
+        //  drawer: NavigateDrawer(uid: uid)
       )  ,
     );
 
 
   }
-}
+
+ }
 
 
-
+/*
 class NavigateDrawer extends StatefulWidget {
   final String? uid;
   const NavigateDrawer({Key? key, this.uid}) : super(key: key);
@@ -501,6 +517,6 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
     );
   }
 }
-
+*/
 
 

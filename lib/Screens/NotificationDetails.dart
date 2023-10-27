@@ -167,6 +167,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -391,15 +392,17 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                       title: Text(
                         LocationName,
                       ),
-                      trailing: ElevatedButton(
+                      trailing:  ElevatedButton(
                         onPressed: () {
+                          print(googleMapsLink);
+                          print(googleMapsLink);
+                          print(googleMapsLink);
                           final snackBar = SnackBar(
-                            content: const Text(
-                                'Do you want to open the location in Google Maps?'),
+                            content: const Text('Do you want to open the location in Google Maps?'),
                             action: SnackBarAction(
                               label: 'Open',
                               onPressed: () async {
-                                final url = Uri.parse(googleMapsLink);
+                                final url = Uri.parse( googleMapsLink );
                                 print(url);
                                 if (await canLaunch(url.toString())) {
                                   await launch(url.toString());
@@ -411,8 +414,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         },
-                        child: const Icon(Icons.location_on_outlined, size: 30,
-                            color: Colors.teal),
+                        child: const Icon(Icons.location_on_outlined, size: 30, color: Colors.teal),
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9.0),

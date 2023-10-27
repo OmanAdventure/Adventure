@@ -18,11 +18,11 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   final List<Widget> viewContainer = [
-    Center(
+    const Center(
         child: adventuresfunc()),
-    //VideoContainerScreen(),
-    Accommodation(),
-    Notifications(),
+
+ //   Accommodation(),
+    const Notifications(),
     Settings()
   ];
 
@@ -35,7 +35,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     return  Scaffold(
-
       body: viewContainer[currentIndex],
       bottomNavigationBar:   BottomNavigationBar(
           onTap: onTabTapped, // new
@@ -48,15 +47,11 @@ class HomeScreenState extends State<HomeScreen> {
               icon:    Icon(Icons.category),
               label:  "Adventures",
             ),
-            BottomNavigationBarItem(
-              icon:  Icon(Icons.hotel),
-              label: "Accommodations",
-            ),
+         //   BottomNavigationBarItem(icon:  Icon(Icons.hotel), label: "Accommodations",),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications_on),
               label: "Notifications",
             ),
-
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: "Settings",
@@ -66,8 +61,6 @@ class HomeScreenState extends State<HomeScreen> {
       )
     );
     // TODO: implement build
-
-
   }
 }
 
