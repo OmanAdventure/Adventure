@@ -1,30 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../main.dart';
+
 class NotificationsDetailsForm extends StatefulWidget {
 
-  final DateTime AdventureBookingDate ;
-  final String UserID;
-  final String AdventureBookingID;
-  final String BookedAdventureNumber;
+  final DateTime adventureBookingDate ;
+  final String userID;
+  final String adventureBookingID;
+  final String bookedAdventureNumber;
 
-  final String  ServiceProviderName ;
-  final String TypeOfAdventure ;
-  final String AdventureDescription;
-  final String Phone_Number;
-  final String LevelOfDifficulty ;
+  final String  serviceProviderName ;
+  final String typeOfAdventure ;
+  final String adventureDescription;
+  final String phoneNumber;
+  final String levelOfDifficulty ;
 
-  final String StartDate ;
-  final String EndDate;
-  final String StartTime;
-  final String EndTime;
+  final String startDate ;
+  final String endDate;
+  final String startTime;
+  final String endTime;
 
-  final String IsOnlyFamily;
-  final String AdventureNature;
-  final String Age;
+  final String isOnlyFamily;
+  final String adventureNature;
+  final String age;
   final String Gender;
 
   final String IsFreeAdventure;
@@ -35,26 +38,26 @@ class NotificationsDetailsForm extends StatefulWidget {
 
   const NotificationsDetailsForm({Key? key,
 
-    required this.AdventureBookingDate,
-    required this.UserID,
-    required this.AdventureBookingID,
-    required this.BookedAdventureNumber,
+    required this.adventureBookingDate,
+    required this.userID,
+    required this.adventureBookingID,
+    required this.bookedAdventureNumber,
 
-    required this.ServiceProviderName,
-    required this.TypeOfAdventure,
-    required this.AdventureDescription,
-    required this.Phone_Number,
-    required this.LevelOfDifficulty,
+    required this.serviceProviderName,
+    required this.typeOfAdventure,
+    required this.adventureDescription,
+    required this.phoneNumber,
+    required this.levelOfDifficulty,
 
-    required this.StartDate,
-    required this.EndDate,
-    required this.StartTime,
-    required this.EndTime,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
 
-    required this.IsOnlyFamily,
-    required this.AdventureNature,
+    required this.isOnlyFamily,
+    required this.adventureNature,
 
-    required this.Age,
+    required this.age,
     required this.Gender,
     required this.IsFreeAdventure,
     required this.Price,
@@ -67,25 +70,25 @@ class NotificationsDetailsForm extends StatefulWidget {
   @override
   NotificationsDeatilsState createState() => NotificationsDeatilsState(
 
-    AdventureBookingDate : AdventureBookingDate,
-    UserID :UserID,
-    AdventureBookingID : AdventureBookingID ,
-    BookedAdventureNumber: BookedAdventureNumber,
+    adventureBookingDate : adventureBookingDate,
+    userID :userID,
+    adventureBookingID : adventureBookingID ,
+    bookedAdventureNumber: bookedAdventureNumber,
 
-    ServiceProviderName  :ServiceProviderName,
-    TypeOfAdventure  :TypeOfAdventure,
-    AdventureDescription:AdventureDescription,
-    Phone_Number:Phone_Number,
-    LevelOfDifficulty :LevelOfDifficulty,
+    serviceProviderName  :serviceProviderName,
+    typeOfAdventure  :typeOfAdventure,
+    adventureDescription:adventureDescription,
+    phoneNumber:phoneNumber,
+    levelOfDifficulty :levelOfDifficulty,
 
-    StartDate :StartDate,
-    EndDate:EndDate,
-    StartTime:StartTime,
-    EndTime:EndTime,
+    startDate :startDate,
+    endDate:endDate,
+    startTime:startTime,
+    endTime:endTime,
 
-    IsOnlyFamily:IsOnlyFamily,
-    AdventureNature:AdventureNature,
-    Age:Age,
+    isOnlyFamily:isOnlyFamily,
+    adventureNature:adventureNature,
+    age:age,
     Gender:Gender,
 
     IsFreeAdventure:IsFreeAdventure,
@@ -93,7 +96,7 @@ class NotificationsDetailsForm extends StatefulWidget {
     MaxNumberOfParticipants:MaxNumberOfParticipants,
     googleMapsLink:googleMapsLink,
     LocationName: LocationName,
-    BookingStatus: '',
+    bookingStatus: '',
 
 
 
@@ -105,26 +108,26 @@ class NotificationsDetailsForm extends StatefulWidget {
 class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
 
 
-  final DateTime AdventureBookingDate;
-  final String BookingStatus;
-  final String AdventureBookingID;
-  final String BookedAdventureNumber;
+  final DateTime adventureBookingDate;
+  final String bookingStatus;
+  final String adventureBookingID;
+  final String bookedAdventureNumber;
 
-  final String UserID;
-  final String ServiceProviderName;
-  final String TypeOfAdventure;
-  final String AdventureDescription;
-  final String Phone_Number;
-  final String LevelOfDifficulty;
+  final String userID;
+  final String serviceProviderName;
+  final String typeOfAdventure;
+  final String adventureDescription;
+  final String phoneNumber;
+  final String levelOfDifficulty;
 
-  final String StartDate;
-  final String EndDate;
-  final String StartTime;
-  final String EndTime;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
 
-  final String IsOnlyFamily;
-  final String AdventureNature;
-  final String Age;
+  final String isOnlyFamily;
+  final String adventureNature;
+  final String age;
   final String Gender;
 
   final String IsFreeAdventure;
@@ -135,26 +138,26 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
 
   NotificationsDeatilsState({
 
-    required this.AdventureBookingDate,
-    required this.AdventureBookingID,
-    required this.BookedAdventureNumber,
-    required this.BookingStatus,
-    required this.UserID,
-    required this.ServiceProviderName,
-    required this.TypeOfAdventure,
-    required this.AdventureDescription,
-    required this.Phone_Number,
-    required this.LevelOfDifficulty,
+    required this.adventureBookingDate,
+    required this.adventureBookingID,
+    required this.bookedAdventureNumber,
+    required this.bookingStatus,
+    required this.userID,
+    required this.serviceProviderName,
+    required this.typeOfAdventure,
+    required this.adventureDescription,
+    required this.phoneNumber,
+    required this.levelOfDifficulty,
 
-    required this.StartDate,
-    required this.EndDate,
-    required this.StartTime,
-    required this.EndTime,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
 
-    required this.IsOnlyFamily,
-    required this.AdventureNature,
+    required this.isOnlyFamily,
+    required this.adventureNature,
     required this.Gender,
-    required this.Age,
+    required this.age,
 
     required this.IsFreeAdventure,
     required this.Price,
@@ -168,18 +171,36 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
   @override
   Widget build(BuildContext context) {
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : Color(0xFF700464);
+    final textColor = themeProvider.darkMode
+        ? Colors.white
+        : Colors.white;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.teal,
-        title: Text(
+       // backgroundColor: Color(0xFF700464),
+        backgroundColor: appBarColor,
+        title:   Text(
           'Notifications Details',
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+              color: textColor,
+
+
+          )
+          /*
           style: GoogleFonts.satisfy(
             fontSize: 30,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.normal,
             color: Colors.white,
           ),
+          */
         ),
       ),
       body: SingleChildScrollView(
@@ -200,7 +221,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                       child: ListTile(
                         leading: Icon(Icons.local_activity),
                         title: Text(
-                          ServiceProviderName,
+                          serviceProviderName,
                         ),
                       ),
                     ),
@@ -210,7 +231,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                       child: ListTile(
                         leading: Icon(Icons.category),
                         title: Text(
-                            TypeOfAdventure
+                            typeOfAdventure
                         ),
                       ),
                     ),
@@ -219,7 +240,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                       child: ListTile(
                         leading: Icon(Icons.description),
                         title: Text(
-                            AdventureDescription
+                            adventureDescription
                         ),
                       ),
                     ),
@@ -229,7 +250,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                       child: ListTile(
                         leading: Icon(Icons.local_activity),
                         title: Text(
-                            LevelOfDifficulty
+                            levelOfDifficulty
                         ),
                       ),
                     ),
@@ -250,10 +271,10 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                     ListTile(
                       leading: Icon(Icons.date_range),
                       title: Text(
-                        StartDate,
+                        startDate,
                       ),
                       trailing: Text(
-                        EndDate,
+                        endDate,
                       ),
                     ),
                   ]
@@ -273,10 +294,10 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                     ListTile(
                       leading: Icon(Icons.access_time_filled_rounded),
                       title: Text(
-                        StartTime,
+                        startTime,
                       ),
                       trailing: Text(
-                        EndTime,
+                        endTime,
                       ),
                     ),
                   ]
@@ -319,10 +340,10 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                     ListTile(
                       leading: Icon(Icons.group),
                       title: Text(
-                        AdventureNature,
+                        adventureNature,
                       ),
                       trailing: Text(
-                        IsOnlyFamily,
+                        isOnlyFamily,
                       ),
                     ),
                   ]
@@ -342,7 +363,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                     ListTile(
                       leading: Icon(Icons.group),
                       title: Text(
-                        Age,
+                        age,
                       ),
                       trailing: Text(
                         Gender,
@@ -414,7 +435,7 @@ class NotificationsDeatilsState extends State<NotificationsDetailsForm> {
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         },
-                        child: const Icon(Icons.location_on_outlined, size: 30, color: Colors.teal),
+                        child: const Icon(Icons.location_on_outlined, size: 30, color: Color(0xFF700464)),
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9.0),

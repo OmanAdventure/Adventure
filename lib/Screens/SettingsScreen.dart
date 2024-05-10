@@ -1,30 +1,51 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/Constant/Constant.dart';
+import 'package:untitled/Screens/MyAchievement.dart';
+import 'package:untitled/Screens/MyBookedAdventures.dart';
+import 'package:untitled/Screens/NewUIScreens.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
 import 'package:untitled/Screens/signup.dart';
 import 'package:untitled/Screens/userProfile.dart';
+import 'package:untitled/l10n/localization.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../main.dart';
+import 'serviceProviderForm.dart';
 import 'SettingsScreen.dart';
 import 'PaymentMethodScreen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:untitled/l10n/messages_all.dart';
+import 'package:untitled/l10n/messages_all_locales.dart';
+import 'package:untitled/l10n/messages_en.dart'; // For English
+import 'package:untitled/l10n/messages_ar.dart'; // For Arabic
+import 'package:intl/intl.dart';
+
 
 void main() => runApp(
-    Settings()
+   const Settings()
 );
 
 class Settings extends StatelessWidget {
-  Settings();
+  const Settings({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : Color(0xFF700464);
+
     return   MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.teal,
+          backgroundColor: appBarColor,
           title: const Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,6 +56,7 @@ class Settings extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28.0,
                   fontWeight: FontWeight.bold,
+                      color: Colors.white
                 ),
               ),
               SizedBox(height: 10.0),
@@ -43,24 +65,28 @@ class Settings extends StatelessWidget {
 
         ),
         body: // MyApp(),
-        const settingsState(),
+        const SettingsState(),
       ),
     );
   }
 }
 
-class settingsState extends StatefulWidget {
-  const settingsState({Key? key}) : super(key: key);
+class SettingsState extends StatefulWidget {
+  const SettingsState({Key? key}) : super(key: key);
   @override
-  State<settingsState> createState() => _MySettingsState();
+  State<SettingsState> createState() => _MySettingsState();
 }
 
-class _MySettingsState extends  State<settingsState> {
+class _MySettingsState extends  State<SettingsState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFeaeaea),
-      body: Padding(
+      // backgroundColor: const Color(0xFFeaeaea),
+     // backgroundColor: Colors.black,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+
+       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -71,10 +97,10 @@ class _MySettingsState extends  State<settingsState> {
               icon: Icons.person_outline,
               onTap: () {
                 User? user = FirebaseAuth.instance.currentUser;
-                String userId = "";
+                String userID = "";
                 if (user != null) {
-                  userId = user.uid;
-                  print('Current User ID -->: $userId');
+                  userID = user.uid;
+                  print('Current User ID -->: $userID');
                   // Navigate to My Profile screen
                   Navigator.push(
                     context,
@@ -95,35 +121,143 @@ class _MySettingsState extends  State<settingsState> {
                   onPressed: () {
                   Navigator.of(context).pop();
                   },
-                  child: const Text("Ok"),
+                  child: const Text("Ok", style: TextStyle(color: Color(0xFF700464))),
                   ),
 
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                         _logout();
-
                              },
-                             child: const Text("Let's login"),
+                             child: const Text("Let's login", style: TextStyle(color: Color(0xFF700464))),
                            ),
                          ],
                         );
-                      },
+                     },
                   );
-
                 }
-
               },
             ),
 
             _buildButton(
               context,
-              text: 'My Adventure',
-              icon: Icons.explore_outlined,
+              text: 'Change Language',
+              icon: Icons.language,
+                onTap: () => _showLanguageDialog(context) // Switch to Arabic
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'My Adventures',
+              icon:  Icons.explore_outlined,
               onTap: () {
-                // Navigate to My Adventure screen
+                User? user = FirebaseAuth.instance.currentUser;
+                String userID = "";
+                if (user != null) {
+                  userID = user.uid;
+                  print('Current User ID -->: $userID');
+                  // Navigate to My Profile screen
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyBookedAdventuresState()),
+                  );
+
+                } else {
+                  if (kDebugMode) {
+                    print('No user is currently logged in.');
+                  }
+                  // User is not logged in, show an alert
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Login Required"),
+                        content: const Text("Please login to check your Adventures."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Ok", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                              _logout();
+                            },
+                            child: const Text("Let's login", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
             ),
+
+
+            _buildButton(
+              context,
+              text: 'My Achievements',
+              icon: Icons.celebration_outlined,
+
+              onTap: () {
+                User? user = FirebaseAuth.instance.currentUser;
+                String userID = "";
+                if (user != null) {
+                  userID = user.uid;
+                  print('Current User ID -->: $userID');
+                  // Navigate to My Achievements screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>  const PointsBadgesScreen(
+                      uuid: '',
+                      adventureProviderName: '',
+                      adventureID: '',
+                      typeOfAdventure: '',
+                      difficultyLevel: '',
+                      price: '',
+                    )
+                    ),
+                  );
+                } else {
+                  print('No user is currently logged in.');
+                  // User is not logged in, show an alert
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Login Required"),
+                        content: const Text("Please login to view what you have achieved."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Ok", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                              _logout();
+
+                            },
+                            child: const Text("Let's login", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+
+
+            ),
+
+
             _buildButton(
               context,
               text: 'Payment Method',
@@ -136,24 +270,64 @@ class _MySettingsState extends  State<settingsState> {
                 );
               },
             ),
+
             _buildButton(
               context,
               text: 'Share the App with a Friend',
               icon: Icons.share_outlined,
-
               onTap: () => shareApp(),
             ),
 
-            /*
+
             _buildButton(
               context,
               text: 'Become a Service Provider',
-              icon: Icons.work_outline_outlined,
+              icon: Icons.category_outlined,
               onTap: () {
-                // Navigate to Become a Service Provider screen
+                User? user = FirebaseAuth.instance.currentUser;
+                String userID = "";
+                if (user != null) {
+                  userID = user.uid;
+                  print('Current User ID -->: $userID');
+                  // Navigate to My Profile screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>  ServiceProviderRegistrationScreen()),
+                  );
+
+                } else {
+                  print('No user is currently logged in.');
+                  // User is not logged in, show an alert
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Login Required"),
+                        content: const Text("Please login to become a service provider."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Ok", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                              _logout();
+
+                            },
+                            child: const Text("Let's login", style: TextStyle(color: Color(0xFF700464))),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
             ),
-            */
+
 
             _buildButton(
               context,
@@ -161,6 +335,23 @@ class _MySettingsState extends  State<settingsState> {
               icon: Icons.description_outlined,
               onTap: () {
                 // Navigate to Terms and Conditions screen
+                final snackBar = SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  content: const Text('Do you want to check Terms and Conditions?'),
+                  action: SnackBarAction(
+                    label: 'Open',textColor: Colors.red,
+                    onPressed: () async {
+
+                      final Uri url = Uri.parse('https://policies.google.com/terms?hl=en-US');
+                      if (!await launchUrl(url)) {
+                        throw Exception('Could not launch $url');
+                      }
+
+                    },
+                  ),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
               },
             ),
 
@@ -169,7 +360,23 @@ class _MySettingsState extends  State<settingsState> {
               text: 'Privacy Policy',
               icon: Icons.privacy_tip_outlined,
               onTap: () {
-                // Navigate to Privacy Policy screen
+                // Navigate to Terms and Conditions screen
+                final snackBar = SnackBar(
+                  behavior: SnackBarBehavior.floating,
+
+                  content: const Text('Do you want to check Privacy Policy?'),
+                  action: SnackBarAction(
+                    label: 'Open', textColor: Colors.red,
+                    onPressed: () async {
+                      final Uri url = Uri.parse('https://policies.google.com/terms?hl=en-US');
+                      if (!await launchUrl(url)) {
+                        throw Exception('Could not launch $url');
+                      }
+                    },
+                  ),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
               },
             ),
 
@@ -184,8 +391,7 @@ class _MySettingsState extends  State<settingsState> {
                 FirebaseAuth auth = FirebaseAuth.instance;
                 auth.signOut().then((res) {
 
-
-                  // Navigate to a different screen and remove the current screen with the bottom navigation bar
+                   // Navigate to a different screen and remove the current screen with the bottom navigation bar
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -208,9 +414,43 @@ class _MySettingsState extends  State<settingsState> {
                 _confirmLogout(context);
               },
             ),
+
+            ///-----------------------------------------
+            _buildButton(
+              context,
+              text: 'Feedback Screen',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  RatingScreen()),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'SignInScreen',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  RatingScreen()),
+                );
+
+              },
+            ),
+
+            //// ---------------------------------
           ],
         ),
       ),
+
+    )
     );
   }
 
@@ -224,13 +464,13 @@ class _MySettingsState extends  State<settingsState> {
           content: const Text('Are you sure you want to log out?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(color: Color(0xFF700464))),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             TextButton(
-              child: const Text('Logout'),
+              child: const Text('Logout', style: TextStyle(color: Color(0xFF700464))),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
                 _logout();
@@ -305,11 +545,72 @@ class _MySettingsState extends  State<settingsState> {
 
 // share the app with a friend function
   void shareApp() async {
-    print("object");
-    const String appLink = 'https://play.google.com/store/apps/details?id=com.example.myapp';
+     const String appLink = 'https://play.google.com/store/apps/details?id=com.example.myapp';
     const String message = 'Check out my new app: $appLink';
     await Share.share(message, subject: 'Share App');
   }
 
+
+
+  Future<void> _showLanguageDialog(BuildContext context) async {
+    Locale currentLocale = Localizations.localeOf(context);
+    String selectedLanguage = currentLocale.languageCode;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Change Language'),
+          content: SizedBox(
+            height: 120.0, // Adjust the height as needed
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  children: [
+                    RadioListTile<String>(
+                      title: const Text('English'),
+                      value: 'en',
+                      groupValue: selectedLanguage,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedLanguage = value!;
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Arabic'),
+                      value: 'ar',
+                      groupValue: selectedLanguage,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedLanguage = value!;
+                        });
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+               // MyApp.changeLanguage(context, Locale(selectedLanguage));
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }

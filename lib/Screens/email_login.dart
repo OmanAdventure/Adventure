@@ -6,19 +6,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:untitled/Constant/Constant.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import 'ForgetPassword.dart';
 import 'PhotoContainerScreen.dart';
 import 'email_signup.dart';
 import 'package:provider/provider.dart';
 
-
-
 class EmailLogIn extends StatefulWidget {
   @override
   _EmailLogInState createState() => _EmailLogInState();
 }
-
 
 class _EmailLogInState extends State<EmailLogIn> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -40,11 +39,11 @@ class _EmailLogInState extends State<EmailLogIn> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Invalid Email"),
-            content: Text("Please enter a valid email address."),
+            title: const Text("Invalid Email"),
+            content: const Text("Please enter a valid email address."),
             actions: [
               ElevatedButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -64,11 +63,11 @@ class _EmailLogInState extends State<EmailLogIn> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Invalid Password"),
-            content: Text("Password must be at least 7 characters."),
+            title: const Text("Invalid Password"),
+            content: const Text("Password must be at least 7 characters."),
             actions: [
               ElevatedButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -107,29 +106,32 @@ class _EmailLogInState extends State<EmailLogIn> {
       );
 
       // Fetch user data from Firestore
-      final userId = userCredential.user!.uid;
-      final userData = await _fetchUserData(userId);
+      final userID = userCredential.user!.uid;
+      final userData = await _fetchUserData(userID);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const adventuresfunc(),
-        ),
-      );
+   // Reset the initial route and push the new route
+     Navigator.of(context).popUntil((route) => route.isFirst);
+     Navigator.pushReplacement(context, MaterialPageRoute(
+       builder: (context) =>     adventuresfunc(currentIndex: 0 ),),);
 
-      print('User ID: $userId');
+
+//userData: userData
+      print('User ID: $userID');
       print('User Data: $userData');
+      currentuser = userID;
+      print('current user  currentuser from email_login.dart : $currentuser' );
+
     } catch (error) {
       // Show error message
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Error"),
+            title: const Text("Error"),
             content: Text(error.toString()),
             actions: [
               ElevatedButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -144,19 +146,17 @@ class _EmailLogInState extends State<EmailLogIn> {
     }
   }
 
-  Future<Map<String, dynamic>> _fetchUserData(String userId) async {
+  Future<Map<String, dynamic>> _fetchUserData(String userID) async {
     DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    await FirebaseFirestore.instance.collection('users').doc(userID).get();
     return userSnapshot.data() ?? {};
   }
 
 
-
-
   @override
   Widget build(BuildContext context) {
-    TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 10.0);
-    TextStyle linkStyle = TextStyle(color: Colors.blue);
+    TextStyle defaultStyle = const TextStyle(color: Colors.grey, fontSize: 10.0);
+    TextStyle linkStyle = const TextStyle(color: Colors.blue);
 
     return Consumer<UserProvider>(
       builder: (context, userProvider, _) {
@@ -179,13 +179,13 @@ class _EmailLogInState extends State<EmailLogIn> {
                 color: Colors.white,
               ),
               child: Padding(
-                padding: EdgeInsets.all(23),
+                padding: const EdgeInsets.all(23),
                 child: ListView(
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                       child: Container(
-                        color: Color(0xfff5f5f5),
+                        color: const Color(0xfff5f5f5),
                         child: TextFormField(
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -198,7 +198,7 @@ class _EmailLogInState extends State<EmailLogIn> {
                             labelText: 'Email',
                             prefixIcon: Icon(
                               Icons.email,
-                              color: Colors.teal,
+                              color: Color(0xFF700464),
                             ),
                             labelStyle: TextStyle(fontSize: 15),
                           ),
@@ -214,7 +214,7 @@ class _EmailLogInState extends State<EmailLogIn> {
                       ),
                     ),
                     Container(
-                      color: Color(0xfff5f5f5),
+                      color: const Color(0xfff5f5f5),
                       child: TextFormField(
                         obscureText: true,
                         controller: passwordController,
@@ -224,12 +224,12 @@ class _EmailLogInState extends State<EmailLogIn> {
                           fontFamily: 'SFUIDisplay',
                         ),
                         decoration: const InputDecoration(
-                          focusColor: Colors.teal,
+                          focusColor: Color(0xFF700464),
                           border: OutlineInputBorder(),
                           labelText: 'Password',
                           prefixIcon: Icon(
                             Icons.lock,
-                            color: Colors.teal,
+                            color: Color(0xFF700464),
                           ),
                           labelStyle: TextStyle(fontSize: 15),
                         ),
@@ -251,19 +251,19 @@ class _EmailLogInState extends State<EmailLogIn> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(9.0),
                               ),
-                              backgroundColor: Colors.teal,
+                              backgroundColor: Color(0xFF700464),
                                  elevation: 5,
-                              minimumSize: Size(double.infinity, 50),
+                              minimumSize: const Size(double.infinity, 50),
                             ),
                             onPressed: isLoading ? null : _login,
                             child: isLoading
                                 ? const CircularProgressIndicator(color: Colors.white,)
-                                : const Text("SIGN IN"),
+                                : const Text("SIGN IN", style: TextStyle(color: Colors.white,)),
                           ),
-
                     ),
+
                     Padding(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.only(top: 10),
                       child: Center(
                         child: TextButton(
                           onPressed: () {
@@ -279,7 +279,7 @@ class _EmailLogInState extends State<EmailLogIn> {
                             'Forgot Password ?',
                             style: TextStyle(
                               fontFamily: 'SFUIDisplay',
-                              color: Colors.teal,
+                              color: Color(0xFF700464),
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -288,7 +288,7 @@ class _EmailLogInState extends State<EmailLogIn> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 5),
+                      padding: const EdgeInsets.only(top: 5),
                       child: Center(
                         child: RichText(
                           text: const TextSpan(
@@ -307,21 +307,21 @@ class _EmailLogInState extends State<EmailLogIn> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 3),
+                      padding: const EdgeInsets.only(top: 3),
                       child: Center(
                         child: DefaultTextStyle(
                           style: const TextStyle(
                             fontFamily: 'SFUIDisplay',
-                            color: Colors.teal,
+                            color: Color(0xFF700464),
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
                           child: TextButton(
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SignUpScreen(
+                                  builder: (context) => const SignUpScreen(
                                     sourceScreen: '',
                                   ),
                                 ),
@@ -329,9 +329,9 @@ class _EmailLogInState extends State<EmailLogIn> {
                             },
                             child: const Text(
                               'Sign Up',
-                              style: TextStyle(
+                              style: TextStyle (
                                 fontFamily: 'SFUIDisplay',
-                                color: Colors.teal,
+                                color: Color(0xFF700464),
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -356,8 +356,11 @@ class _EmailLogInState extends State<EmailLogIn> {
                                 text: 'Terms of Service',
                                 style: linkStyle,
                                 recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    print('Terms of Service');
+                                  ..onTap = () async {
+                                    final Uri url = Uri.parse('https://policies.google.com/terms?hl=en-US');
+                                    if (!await launchUrl(url)) {
+                                      throw Exception('Could not launch $url');
+                                    }
                                   },
                               ),
                               const TextSpan(text: ' and that you have read our '),
@@ -365,8 +368,11 @@ class _EmailLogInState extends State<EmailLogIn> {
                                 text: 'Privacy Policy',
                                 style: linkStyle,
                                 recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    print('Privacy Policy');
+                                  ..onTap = () async {
+                                    final Uri url = Uri.parse('https://policies.google.com/terms?hl=en-US');
+                                    if (!await launchUrl(url)) {
+                                      throw Exception('Could not launch $url');
+                                    }
                                   },
                               ),
                             ],
@@ -400,16 +406,16 @@ class _EmailLogInState extends State<EmailLogIn> {
         password: password,
       );
 
-      final userId = userCredential.user!.uid;
+      final userID = userCredential.user!.uid;
       final DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-      await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      await FirebaseFirestore.instance.collection('users').doc(userID).get();
       final userData = userSnapshot.data();
 
       // Implement further logic with the retrieved user data
       print('Logged in successfully!');
       // Navigate to Home screen
       Navigator.of(context).pushReplacementNamed('/adventuresfunc');
-      print('User ID: $userId');
+      print('User ID: $userID');
       print('User Data: $userData');
     } catch (error) {
       print('Login failed: $error');
@@ -418,11 +424,11 @@ class _EmailLogInState extends State<EmailLogIn> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Error"),
+            title: const Text("Error"),
             content: Text(error.toString()),
             actions: [
               ElevatedButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -497,14 +503,14 @@ class _EmailLogInState extends State<EmailLogIn> {
             padding: const EdgeInsets.all(10.0),
             child: TextButton.icon(
               onPressed: null,
-              icon: const Icon(Icons.warning, color: Colors.teal),
+              icon: const Icon(Icons.warning, color: Color(0xFF700464)),
               label: const Text(
                 "Please make sure to enter a valid email address",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.normal,
-                  color: Colors.teal,
+                  color: Color(0xFF700464),
                 ),
               ),
             ),
@@ -513,7 +519,7 @@ class _EmailLogInState extends State<EmailLogIn> {
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: Colors.teal,
+                backgroundColor: Color(0xFF700464),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -537,14 +543,14 @@ class _EmailLogInState extends State<EmailLogIn> {
             padding: const EdgeInsets.all(10.0),
             child: TextButton.icon(
               onPressed: null,
-              icon: const Icon(Icons.warning, color: Colors.teal),
+              icon: const Icon(Icons.warning, color: Color(0xFF700464)),
               label: const Text(
                 "Please make sure to enter a password with at least 7 characters mixed with numbers, letters and \n at least one special character, e.g., ! @ # ? ] ",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.normal,
-                  color: Colors.teal,
+                  color: Color(0xFF700464),
                 ),
               ),
             ),
@@ -553,7 +559,7 @@ class _EmailLogInState extends State<EmailLogIn> {
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: Colors.teal,
+                backgroundColor: Color(0xFF700464),
               ),
               onPressed: () {
                 Navigator.of(context).pop();

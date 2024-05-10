@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Screens/NotificationDetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,12 +12,14 @@ import 'dart:convert';
 
 import 'package:untitled/Screens/signup.dart';
 
+import '../main.dart';
+
 void main() => runApp(
     const Notifications()
 );
 
 class Notifications extends StatelessWidget {
-  const Notifications();
+  const Notifications({super.key});
 
   static const route = '/NotificationsScreen';
 
@@ -46,14 +50,14 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
     super.initState();
 
     User? user = FirebaseAuth.instance.currentUser;
-    String userId = "";
+    String userID = "";
     if (user != null) {
-      userId = user.uid;
+      userID = user.uid;
     }
 
     _adventuresStream = FirebaseFirestore.instance
-        .collection('BookedAdventure').where("UserID", isEqualTo: userId )
-        //.orderBy('AdventureBookingDate', descending: true)
+        .collection('BookedAdventure').where("userID", isEqualTo: userID )
+        //.orderBy('adventureBookingDate', descending: true)
         .snapshots();
 // -----------------------------------------
     /*
@@ -87,35 +91,47 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
 
     // to get the notification message
     final message = ModalRoute.of(context)!.settings.arguments;
-    print("Notification Message");
-    print(message);
+    if (kDebugMode) {
+      print("Notification Message");
+      print(message);
+    }
 
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : const Color(0xFF700464);
+
+    final textColor = themeProvider.darkMode
+        ? Colors.white
+        : Colors.white;
 
     return Scaffold(
+
       backgroundColor: const Color(0xFFeaeaea),
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        title: const Column(
+      appBar: AppBar (
+        //backgroundColor: Color(0xFF700464),
+        backgroundColor: appBarColor,
+        title:   Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
             Text(
               'Notifications',
               style: TextStyle(
                 fontSize: 28.0,
                 fontWeight: FontWeight.bold,
+                color: textColor,
               ),
             ),
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
           ],
         ),
-
-
-
       ),
+
       body: Container(
-        padding: const EdgeInsets.all(2.0),
+        padding: const EdgeInsets.all(4.0),
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
@@ -127,16 +143,23 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
 
                   if ( user  == null ) {
                     return  AlertDialog(
+                      elevation: 10,
                       title: const Text('Login is Required'),
                       content: const Text("Please login to view your notifications"),
                       actions: <Widget>[
+                       Container(
+                          decoration:  const BoxDecoration(
+                            color: Color(0xFF700464),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                         child: TextButton(
+                           child:  const Text("Log In", textAlign: TextAlign.center, style:  TextStyle( color: Colors.white, fontWeight: FontWeight.bold , fontSize: 15 ) ) ,
+                           onPressed: () {
+                             _logout(context);
+                           },
+                         ),
+                       )
 
-                        TextButton(
-                          child:  const Text("Log In", textAlign: TextAlign.center, style:  TextStyle( color: Colors.teal, fontWeight: FontWeight.bold , fontSize: 15 ) ) ,
-                          onPressed: () {
-                            _logout(context);
-                          },
-                        ),
 
                       ],
                     );
@@ -147,7 +170,7 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
                     return const SizedBox(
                       height: 500,
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(color: Color(0xFF700464),),
                       ),
                     );
                   }
@@ -160,7 +183,7 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.cloud_sharp, color: Colors.teal, size: 90),
+                            Icon(Icons.cloud_sharp, color: Color(0xFF700464), size: 90),
                             SizedBox(width: 8.0),
                             Text('No adventures have been booked yet.'),
                           ],
@@ -175,63 +198,50 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
                   // Convert the documents to a list of Map<String, dynamic>
                   List<Map<String, dynamic>> adventuresData = documents.map((doc) {
                     final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                    // Convert 'AdventureBookingDate' to DateTime
-                    data['AdventureBookingDate'] = (data['AdventureBookingDate'] as Timestamp).toDate();
+                    // Convert 'adventureBookingDate' to DateTime
+                    data['adventureBookingDate'] = (data['adventureBookingDate'] as Timestamp).toDate();
                     return data;
                   }).toList();
 
-                  // Sort the list by 'AdventureBookingDate' Z-A
-                  adventuresData.sort((a, b) => b['AdventureBookingDate'].compareTo(a['AdventureBookingDate']));
+                  // Sort the list by 'adventureBookingDate' Z-A
+                  adventuresData.sort((a, b) => b['adventureBookingDate'].compareTo(a['adventureBookingDate']));
 
                   return Column(
                     children: adventuresData.map((data) {
-                   // print("Data received: $data");
-
-
-                      return ReusableCard(
-                        AdventureBookingDate: data['AdventureBookingDate'] ?? '',
-                        BookingStatus: data['BookingStatus'] ?? '',
-                        AdventureBookingID: data['AdventureBookingID'] ?? '',
-                        Gender: data['Gender'] ?? '',
-                        Age: data['Age'] ?? '',
-                        StartDate: data['StartDate'] ?? '',
-                        EndDate: data['EndDate'] ?? '',
-                        StartTime: data['StartTime'] ?? '',
-                        EndTime: data['EndTime'] ?? '',
-                        UserID: data['UserID'] ?? '',
-                        ServiceProviderName: data['ServiceProviderName'] ?? '',
-                        TypeOfAdventure: data['TypeOfAdventure'] ?? '',
-                        Phone_Number: data['PhoneNumber'] ?? '',
-                        LevelOfDifficulty: data['LevelOfDifficulty'] ?? '',
-                        AdventureNature: data['AdventureNature'] ?? '',
-                        IsFreeAdventure: data['IsFreeAdventure'] ?? '',
-                        IsOnlyFamily: data['IsOnlyFamily'] ?? '',
-                        Price: data['Price'] ?? '',
-                        MaxNumberOfParticipants: data['MaxNumberOfParticipants'] ?? '',
+                 return ReusableCard(
+                        adventureBookingDate: data['adventureBookingDate'] ?? '',
+                        bookingStatus: data['bookingStatus'] ?? '',
+                        adventureBookingID: data['adventureBookingID'] ?? '',
+                        gender: data['gender'] ?? '',
+                        age: data['age'] ?? '',
+                        startDate: data['startDate'] ?? '',
+                        endDate: data['endDate'] ?? '',
+                        startTime: data['startTime'] ?? '',
+                        endTime: data['endTime'] ?? '',
+                        userID: data['userID'] ?? '',
+                        serviceProviderName: data['serviceProviderName'] ?? '',
+                        typeOfAdventure: data['typeOfAdventure'] ?? '',
+                        phoneNumber: data['phoneNumber'] ?? '',
+                        levelOfDifficulty: data['levelOfDifficulty'] ?? '',
+                        adventureNature: data['adventureNature'] ?? '',
+                        isFreeAdventure: data['isFreeAdventure'] ?? '',
+                        isOnlyFamily: data['isOnlyFamily'] ?? '',
+                        price: data['price'] ?? '',
+                        maxNumberOfParticipants: data['maxNumberOfParticipants'] ?? '',
                         googleMapsLink: data['googleMapsLink '] ?? '',
-                        AdventureDescription: data['AdventureDescription'] ?? '',
-                        LocationName: data['LocationName'] ?? '',
-                        BookedAdventureNumber: 'BookedAdventureNumber',
+                        adventureDescription: data['adventureDescription'] ?? '',
+                        locationName: data['locationName'] ?? '',
+                        bookedAdventureNumber: data['bookedAdventureNumber']  ?? '',
                       );
                     }).toList(),
                   );
                 },
               )
-
             ],
           ),
         ),
       ),
     );
-  }
-
-  Map<String, dynamic> _convertDocumentToJson(DocumentSnapshot document) {
-    final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-    // Convert Timestamp to milliseconds since Unix epoch
-    final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
-    final int milliseconds = creationTimestamp.millisecondsSinceEpoch;
-    data['AdventureCreationDate'] = milliseconds;
-    return data;
   }
 }
 
@@ -239,62 +249,62 @@ class _MyNotificationContainerState extends State<MyNotificationState> {
 class ReusableCard extends StatelessWidget {
 
 
-  final DateTime AdventureBookingDate;
-  final String BookingStatus;
-  final String AdventureBookingID;
-  final String BookedAdventureNumber;
+  final DateTime adventureBookingDate;
+  final String bookingStatus;
+  final String adventureBookingID;
+  final String bookedAdventureNumber;
 
-  final String UserID;
-  final String ServiceProviderName;
-  final String TypeOfAdventure;
-  final String AdventureDescription;
-  final String Phone_Number;
-  final String LevelOfDifficulty;
+  final String userID;
+  final String serviceProviderName;
+  final String typeOfAdventure;
+  final String adventureDescription;
+  final String phoneNumber;
+  final String levelOfDifficulty;
 
-  final String StartDate;
-  final String EndDate;
-  final String StartTime;
-  final String EndTime;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
 
-  final String IsOnlyFamily;
-  final String AdventureNature;
-  final String Age;
-  final String Gender;
+  final String isOnlyFamily;
+  final String adventureNature;
+  final String age;
+  final String gender;
 
-  final String IsFreeAdventure;
-  final String Price;
-  final String MaxNumberOfParticipants;
+  final String isFreeAdventure;
+  final String price;
+  final String maxNumberOfParticipants;
   final String googleMapsLink;
-  final String LocationName;
+  final String locationName;
 
-  const ReusableCard({
+  const ReusableCard({super.key,
 
-    required this.AdventureBookingDate,
-    required this.AdventureBookingID,
-    required this.BookedAdventureNumber,
-    required this.BookingStatus,
-    required this.UserID,
-    required this.ServiceProviderName,
-    required this.TypeOfAdventure,
-    required this.AdventureDescription,
-    required this.Phone_Number,
-    required this.LevelOfDifficulty,
+    required this.adventureBookingDate,
+    required this.adventureBookingID,
+    required this.bookedAdventureNumber,
+    required this.bookingStatus,
+    required this.userID,
+    required this.serviceProviderName,
+    required this.typeOfAdventure,
+    required this.adventureDescription,
+    required this.phoneNumber,
+    required this.levelOfDifficulty,
 
-    required this.StartDate,
-    required this.EndDate,
-    required this.StartTime,
-    required this.EndTime,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
 
-    required this.IsOnlyFamily,
-    required this.AdventureNature,
-    required this.Gender,
-    required this.Age,
+    required this.isOnlyFamily,
+    required this.adventureNature,
+    required this.gender,
+    required this.age,
 
-    required this.IsFreeAdventure,
-    required this.Price,
-    required this.MaxNumberOfParticipants,
+    required this.isFreeAdventure,
+    required this.price,
+    required this.maxNumberOfParticipants,
     required this.googleMapsLink,
-    required this.LocationName,
+    required this.locationName,
 
 
   });
@@ -313,32 +323,20 @@ class ReusableCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const Icon(Icons.category, size: 20, color: Colors.teal,),
-              //  const Icon(Icons.category_outlined, color: Colors.teal),
+              const Icon(Icons.category, size: 20, color: Color(0xFF700464),),
               const SizedBox(width: 5.0),
-              TypeOfAdventure != "" ? Text(TypeOfAdventure) : const Text(''),
+              typeOfAdventure != "" ? Text(typeOfAdventure) : const Text(''),
               const Spacer(),
             ],
           ),
 
-     /*
-          const SizedBox(height: 3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const Icon(Icons.accessibility, color: Colors.teal),
-              const SizedBox(width: 5.0),
-              LevelOfDifficulty != "" ? Text(LevelOfDifficulty) : const Text(''),
-            ],
-          ),
-*/
           const SizedBox(height: 10),
           //Text
           Align(
             alignment: Alignment.centerLeft,
 
             child: Text(
-              ServiceProviderName != "" || ServiceProviderName.isEmpty ? ServiceProviderName : '',
+              serviceProviderName != "" || serviceProviderName.isEmpty ? serviceProviderName : '',
               textAlign: TextAlign.left,
               style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 18),
             ),
@@ -356,7 +354,7 @@ class ReusableCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
 
                 child: Text(
-                  LocationName ?? '',
+                  locationName,
                   textAlign: TextAlign.left,
                   style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
                 ),
@@ -370,10 +368,10 @@ class ReusableCard extends StatelessWidget {
                    child: ElevatedButton(
                      onPressed: () {
                        User? user = FirebaseAuth.instance.currentUser;
-                       String userId = "";
+                       String userID = "";
                        if (user != null) {
-                         userId = user.uid;
-                      //   print('Current User ID: $userId');
+                         userID = user.uid;
+                      //   print('Current User ID: $userID');
                          // Navigate to Notification Details
 
                          Navigator.push(
@@ -381,32 +379,32 @@ class ReusableCard extends StatelessWidget {
                            MaterialPageRoute(builder: (context) =>  NotificationsDetailsForm (
 
                              // ----- This Goes to the Next Screen for confirmation
-                             AdventureBookingDate : AdventureBookingDate,
-                             UserID :UserID,
-                             AdventureBookingID : AdventureBookingID ,
-                             BookedAdventureNumber : BookedAdventureNumber,
+                             adventureBookingDate : adventureBookingDate,
+                             userID :userID,
+                             adventureBookingID : adventureBookingID ,
+                             bookedAdventureNumber : bookedAdventureNumber,
 
-                             ServiceProviderName  :ServiceProviderName,
-                             TypeOfAdventure  :TypeOfAdventure,
-                             AdventureDescription:AdventureDescription,
-                             Phone_Number:Phone_Number,
-                             LevelOfDifficulty :LevelOfDifficulty,
+                             serviceProviderName  :serviceProviderName,
+                             typeOfAdventure  :typeOfAdventure,
+                             adventureDescription:adventureDescription,
+                             phoneNumber:phoneNumber,
+                             levelOfDifficulty :levelOfDifficulty,
 
-                             StartDate :StartDate,
-                             EndDate:EndDate,
-                             StartTime:StartTime,
-                             EndTime:EndTime,
+                             startDate :startDate,
+                             endDate:endDate,
+                             startTime:startTime,
+                             endTime:endTime,
 
-                             IsOnlyFamily:IsOnlyFamily,
-                             AdventureNature:AdventureNature,
-                             Age:Age,
-                             Gender:Gender,
+                             isOnlyFamily:isOnlyFamily,
+                             adventureNature:adventureNature,
+                             age:age,
+                             Gender:gender,
 
-                             IsFreeAdventure:IsFreeAdventure,
-                             Price:Price,
-                             MaxNumberOfParticipants:MaxNumberOfParticipants,
+                             IsFreeAdventure:isFreeAdventure,
+                             Price:price,
+                             MaxNumberOfParticipants:maxNumberOfParticipants,
                              googleMapsLink:googleMapsLink,
-                             LocationName: LocationName,
+                             LocationName: locationName,
 
 
 
@@ -422,12 +420,12 @@ class ReusableCard extends StatelessWidget {
                        shape: RoundedRectangleBorder(
                          borderRadius: BorderRadius.circular(32.0),
                        ),
-                       backgroundColor: Colors.teal,
+                       backgroundColor: const Color(0xFF700464),
                        shadowColor: Colors.black,
                      ),
                      child: const Text(
                        "View",
-                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                      ),
                    ),
                  )
@@ -438,41 +436,6 @@ class ReusableCard extends StatelessWidget {
     );
   }
 }
-
-
-Widget _buildButton(BuildContext context,
-    {required String text, required IconData icon, required void Function() onTap}) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .bodyLarge,
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios),
-        ],
-      ),
-    ),
-  );
-
-
-}
-
-
-
-
-
 
 
 
@@ -495,7 +458,9 @@ Future<void> _logout(BuildContext context) async {
 
     // Replace '/login' with your desired route
   } catch (e) {
-    print("Error during logout: $e");
+    if (kDebugMode) {
+      print("Error during logout: $e");
+    }
   }
 }
 
@@ -507,10 +472,14 @@ Future<void> _clearCachedUserData() async  {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.clear(); // Clear all cached data
-    print("Cached user data cleared");
+    if (kDebugMode) {
+      print("Cached user data cleared");
+    }
 
   } catch (e) {
-    print("Error clearing cached user data: $e");
+    if (kDebugMode) {
+      print("Error clearing cached user data: $e");
+    }
   }
 
 }

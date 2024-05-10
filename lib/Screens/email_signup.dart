@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Screens/signup.dart';
+import 'package:untitled/main.dart';
 import 'PhotoContainerScreen.dart';
 import 'adventures.dart';
 import 'package:uuid/uuid.dart';
@@ -22,9 +28,9 @@ class SignUpForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        // primarySwatch: Colors.teal,
+        // primarySwatch: Color(0xFF700464),
       ),
-      home:   SignUpScreen(sourceScreen: '',),
+      home:   const SignUpScreen(sourceScreen: '',),
     );
   }
 }
@@ -47,8 +53,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _phoneNumberController = TextEditingController();
   final _genderOptions = ['Male', 'Female'];
   String? _selectedGender;
-  bool _isSubmitting = false;
-  String? _errorMessage;
+
+  bool active = false;
 
   bool isLoading = false;
 
@@ -63,16 +69,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // ---------------------- To Firebase ----------------------
 
-  Future<void> _signUp( ) async {
+  Future<void> _signUp() async {
+
     setState(() {
-      //    _isSubmitting = true;
+     // isLoading = true;
     });
     // ----------- Validation ----------------------
 
 
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isSubmitting = true;
+        isLoading = true;
       });
 
       // Validate the required text fields
@@ -93,16 +100,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
             .doc('count')
             .set({'count': count + 1});
 
+        final String? token = await FirebaseMessaging.instance.getToken();
+
+
+ //       final currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
         // Add the User data to Firestore with the UUID and count
         final userData = {
 
           'AccountCreationDate': DateTime.now(),
           'UserName' : _userNameController.text,
-          'UserID': userCredential.user!.uid,
+          'userID': userCredential.user!.uid,
           'User Count': count + 1,
           'User Email': _emailController.text,
           'User Gender': _selectedGender,
           'Phone Number': _phoneNumberController.text,
+          'User Type' : 'Customer',
+          'Platform':  Platform.operatingSystem,
+           'Token' : token,
+          'Member' : active,
+
+          // 'User Location' : currentLocation,
 
         };
         await FirebaseFirestore.instance
@@ -115,55 +133,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'You have registered your account successfully')));
 
         setState(() {
-          _isSubmitting = false;
+          isLoading = false;
         });
 
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SignUp(),
-            ),
-          );
-
-
-
-
+        Navigator.pushReplacement(
+          context, MaterialPageRoute(
+          builder: (context) => adventuresfunc(currentIndex: 0 ),
+          ),
+        );
 
       } catch (error) {
         print(error);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(error.toString())));
         setState(() {
-          _isSubmitting = false;
+          isLoading = false;
         });
       }
-    }
+
+    }  else {
+      setState(() {
+      isLoading = false;
+              });
+           }
   }
 
   @override
     Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : Color(0xFF700464);
+
       return Scaffold(
+         backgroundColor:   const Color(0xFFeaeaea),
         resizeToAvoidBottomInset: false, // Add this line to disable animation
         appBar: AppBar(
-          title: const Text('iDiscover', textAlign: TextAlign.center),
-          backgroundColor: Colors.teal,
+          title: const Text('Sign Up', textAlign: TextAlign.center, style: TextStyle(color: Colors.white,) ),
+          backgroundColor: appBarColor,
         ),
         body:  SingleChildScrollView(
-                  physics: NeverScrollableScrollPhysics(), // Disable scrolling of SingleChildScrollView
-                  child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height, // Set a minimum height
-                  ),
-               child: Container(
+         child: Container(
 
+           /*
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/signUpScreenImage.png'),
                     fit: BoxFit.cover,
                   ),
                 ),
-                child: Stack(
+            */
+          child: Stack(
                   children: [
                     Center(
                       child: Padding(
@@ -174,6 +195,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              const Padding(
+                                padding: EdgeInsets.all(10.0),
+                                child: Text(
+                                  'Wathbah',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.normal,
+                                    color: Color(0xFF700464),
+                                  ),
+                                ),
+                              ),
+                             // const SizedBox(height: 100.0),
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
@@ -188,7 +222,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     contentPadding: EdgeInsets.symmetric(
                                         horizontal: 16.0, vertical: 10),
                                   ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Username';
+                                    }
 
+                                    return null;
+                                  },
                                 ),
                               ),
                               const SizedBox(height: 16.0),
@@ -220,17 +260,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               const SizedBox(height: 16.0),
                               Container(
+                                padding: const EdgeInsets.only(left: 16, right: 16),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
                                   color: Colors.white,
                                 ),
                                 child: DropdownButtonFormField<String>(
+
                                   value: _selectedGender,
                                   onChanged: (newValue) {
                                     setState(() {
                                       _selectedGender = newValue;
                                     });
                                   },
+
                                   items: _genderOptions
                                       .map((option) =>
                                       DropdownMenuItem(
@@ -242,7 +285,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     border: InputBorder.none,
                                     labelText: 'Gender',
                                     contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 16.0, vertical: 10),
+                                        horizontal: 10.0, vertical: 10),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -287,6 +330,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 child: TextFormField(
                                   controller: _phoneNumberController,
                                   keyboardType: TextInputType.phone,
+                                  maxLength: 8,
                                   decoration: const InputDecoration(
                                     border: InputBorder.none,
                                     labelText: 'Phone Number',
@@ -308,6 +352,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               const SizedBox(height: 16.0),
 
+
+
                               Padding(
                                 padding:  const EdgeInsets.fromLTRB(0, 20, 0, 5),
                                 child:   ElevatedButton(
@@ -316,37 +362,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(9.0),
                                     ),
-                                    backgroundColor: Colors.teal,
+                                    backgroundColor: Color(0xFF700464),
                                     elevation: 5,
-                                    minimumSize: Size(double.infinity, 50),
+                                    minimumSize: const Size(double.infinity, 50),
                                   ),
                                   onPressed: isLoading ? null : _signUp,
                                   child: isLoading
                                       ? const CircularProgressIndicator(color: Colors.white,)
-                                      : const Text("SIGN UP"),
+                                      : const Text("SIGN UP", style: TextStyle(color: Colors.white,)),
                                 ),
+                              ),
 
-                              ),
-                            /*
-                              ElevatedButton(
-                                onPressed: () {
-                                  _signUp();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.teal,
-                                  padding: const EdgeInsets.fromLTRB(
-                                      160, 16, 160, 16),
-                                ),
-                                child: const Text(' Sign Up '),
-                              ),
-                              */
                             ],
                           ),
                         ),
                       ),
                     ),
 
+
+               /*
 
                     if (_isSubmitting)
                       Container(
@@ -368,10 +402,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                       ),
+
+           */
+
+
                   ],
                 ),
               ),
-            ),
+
         )
       );
     }

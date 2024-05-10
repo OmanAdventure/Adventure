@@ -16,7 +16,7 @@
 	<string>com.example.untitled</string>
 	<key>PROJECT_ID</key>
 	<string>adventure-app-f2369</string>
-	<key>STORAGE_BUCKET</key>
+	<key>STORage_BUCKET</key>
 	<string>adventure-app-f2369.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>

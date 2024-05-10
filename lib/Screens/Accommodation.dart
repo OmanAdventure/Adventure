@@ -54,9 +54,9 @@ class _MyStatefulWidgetState extends State<hotels> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.teal,
-        title: Text(
+        title: const Text(
           'Oman Adventure',
-          style: GoogleFonts.satisfy(
+          style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.normal,
@@ -217,8 +217,7 @@ class reusableAccomWidget extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.orangeAccent,
-                  onPrimary: Colors.white,
+                  foregroundColor: Colors.white, backgroundColor: Colors.orangeAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(32.0),
                   ),

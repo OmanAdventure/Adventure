@@ -189,7 +189,7 @@ class MapPickerScreenState extends State<MapPickerScreen> {
     return Scaffold(
       key: homeScaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: Color(0xFF700464),
         title: const Text("Pick a Location"),
         actions: [
           /*
@@ -266,7 +266,7 @@ class MapPickerScreenState extends State<MapPickerScreen> {
 
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(20), backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.all(20), backgroundColor: Color(0xFF700464),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

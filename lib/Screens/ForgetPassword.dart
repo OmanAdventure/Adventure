@@ -133,7 +133,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         labelText: 'Email',
                         prefixIcon: Icon(
                           Icons.email,
-                          color: Colors.teal,
+                          color: Color(0xFF700464),
                         ),
                         labelStyle: TextStyle(fontSize: 15),
                       ),
@@ -156,7 +156,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     child: const Center(
                       child: CircularProgressIndicator(
                         valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.teal),
+                        AlwaysStoppedAnimation<Color>(Color(0xFF700464)),
                         strokeWidth: 5.0,
                       ),
                     ),
@@ -174,7 +174,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         sendPasswordResetEmail();
                       }
                     },
-                    color: Colors.teal,
+                    color: Color(0xFF700464),
                     elevation: 0,
                     minWidth: 400,
                     height: 50,
@@ -209,7 +209,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         'Sign In?',
                         style: TextStyle(
                           fontFamily: 'SFUIDisplay',
-                          color: Colors.teal,
+                          color: Color(0xFF700464),
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -236,14 +236,14 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             padding: const EdgeInsets.all(10.0),
             child: TextButton.icon(
               onPressed: null,
-              icon: const Icon(Icons.warning, color: Colors.teal),
+              icon: const Icon(Icons.warning, color: Color(0xFF700464)),
               label: const Text(
                 "Please make sure to enter a valid email address",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.normal,
-                  color: Colors.teal,
+                  color: Color(0xFF700464),
                 ),
               ),
             ),
@@ -252,7 +252,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: Colors.teal,
+                backgroundColor: Color(0xFF700464),
               ),
               onPressed: () {
                 Navigator.of(context).pop();

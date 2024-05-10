@@ -26,8 +26,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    //compileSdkVersion flutter.compileSdkVersion
-    compileSdkVersion = 33
+   // compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion = 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -52,10 +52,10 @@ android {
         //minSdkVersion flutter.minSdkVersion
 
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         // Enabling multidex support.
         multiDexEnabled true
-        targetSdkVersion flutter.targetSdkVersion
+       // targetSdkVersion flutter.targetSdkVersion
 
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -81,7 +81,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
     // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.2.0'
+    implementation 'com.google.android.gms:play-services-auth:21.1.0'
 }
 
 

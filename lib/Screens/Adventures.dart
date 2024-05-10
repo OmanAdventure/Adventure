@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Screens/SplitScreensForm.dart';
 import 'package:untitled/Screens/signup.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,13 +12,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import '../main.dart';
+import 'HomeScreen.dart';
 import 'email_login.dart';
 import 'email_signup.dart';
 import 'CustomerAdventureForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-//import 'package:flutter_datetime_picker/src/datetime_picker_theme.dart';
 
 class AdventuresContainerScreen extends StatefulWidget {
 
@@ -25,8 +27,7 @@ class AdventuresContainerScreen extends StatefulWidget {
   const AdventuresContainerScreen({super.key,  required this.name});
 
   @override
-  _AdventuresContainerScreenState createState() =>
-      _AdventuresContainerScreenState(name: name);
+  _AdventuresContainerScreenState createState() => _AdventuresContainerScreenState(name: name);
 }
 
 class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
@@ -34,21 +35,21 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
   late List<Map<String, dynamic>> _cachedAdventures = [];
   late SharedPreferences _prefs;
   final String name;
+  String _priceSortOrder = 'LowToHigh'; // Default sorting order for price
+  String _difficultyFilter = 'All'; // Default difficulty filter
+  String  _stringPrice = "";
+  String _genderFilter = 'All';
 
   _AdventuresContainerScreenState({required this.name});
-  
+
   @override
   void initState() {
     super.initState();
     var adventureType = name;
-    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
-    print(adventureType);
-    print('&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*&^*^*&^*&^*&^');
 
-    _adventuresStream = FirebaseFirestore.instance
-        .collection('adventure')
-        .where("TypeOfAdventure", isEqualTo: adventureType )
-      //  .orderBy('AdventureCreationDate', descending: true)
+    _adventuresStream = FirebaseFirestore.instance.collection('adventure')
+        .where("typeOfAdventure", isEqualTo: adventureType )
+      //  .orderBy('adventureCreationDate', descending: true)
         .snapshots();
 
     SharedPreferences.getInstance().then((prefs) {
@@ -64,19 +65,44 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
         }
       });
     });
+
+
   }
 
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
+  void updateState() {
+    setState(() {
+      print("123456789");
+    });
+  } // Use setState here
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : Color(0xFF700464);;
+
+    return Scaffold (
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title:   Text(name),
+        title: Text(name, style: TextStyle(    color: Colors.white,)),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: appBarColor,
+        actions: [
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              _showFilterOptions(context);
+            },
+          ),
+        ],
       ),
       body: Container(
         padding: const EdgeInsets.all(2.0),
@@ -87,6 +113,8 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
                 stream: _adventuresStream,
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
+
+                    print('Error in StreamBuilder: ${snapshot.error}');
                     return const Text('Something went wrong');
                   }
 
@@ -107,7 +135,7 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            Icon(Icons.cloud_sharp, color: Colors.teal, size: 90),
+                            Icon(Icons.cloud_sharp, color: Color(0xFF700464), size: 90),
                             SizedBox(width: 8.0),
                             Text('No adventures have been posted yet.'),
                           ],
@@ -118,41 +146,51 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
 
                   return Column(
                     children: snapshot.data!.docs.map((DocumentSnapshot document) {
+
                       final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
                       // Convert Timestamp to DateTime
                       print("Data received: $data"); // Add this line
-                      final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
+
+                      // Create a new variable named priceString
+                      String  _stringPrice = data['price'];
+                      print(_stringPrice);
+                      print('priceString');
+
+
+                      // Convert Timestamp to DateTime
+                      final Timestamp creationTimestamp = data['adventureCreationDate'] as Timestamp;
                       final DateTime creationDate = creationTimestamp.toDate();
 
                       return ReusableCard(
-                        AdventureCreationDate: creationDate,
-                        AdventureID : data['AdventureID'],
-                        gender: data['Gender'] ?? '',
-                        age: data['Age'] ?? '',
-                        StartDate: data['StartDate'] ?? '',
-                        EndDate: data['EndDate'] ?? '',
-                        StartTime: data['StartTime'] ?? '',
-                        EndTime: data['EndTime'] ?? '',
+                        adventureCreationDate: creationDate,
+                        adventureID : data['adventureID'],
+                        gender: data['gender'] ?? '',
+                        age: data['age'] ?? '',
+                        startDate: data['startDate'] ?? '',
+                        endDate: data['endDate'] ?? '',
+                        startTime: data['startTime'] ?? '',
+                        endTime: data['endTime'] ?? '',
                         uuid: data['uuid'] ?? '',
-                        adven_provider_Name: data['ServiceProviderName'] ?? '',
+                        adventureProviderName: data['serviceProviderName'] ?? '',
                         count: data['count'] ?? '',
-                        type_of_Adventure: data['TypeOfAdventure'] ?? '',
-                        Phone_Number: data['PhoneNumber'] ?? '',
-                        difficultyLevel: data['LevelOfDifficulty'] ?? '',
-                        adventureNature: data['AdventureNature'] ?? '',
-                        freeAdventure: data['IsFreeAdventure'] ?? '',
-                        onlyFamilies: data['IsOnlyFamily'] ?? '',
-                        price: data['Price'] ?? '',
-                        max_number_of_Participants: data['MaxNumberOfParticipants'] ?? '',
+                        typeOfAdventure: data['typeOfAdventure'] ?? '',
+                        phoneNumber: data['phoneNumber'] ?? '',
+                        equipmentProvided: data['isEquipmentProvided'] ?? '',
+                        difficultyLevel: data['levelOfDifficulty'] ?? '',
+                        price: data['price'] ?? '',
+                        adventureNature: data['adventureNature'] ?? '',
+                        freeAdventure: data['isFreeAdventure'] ?? '',
+                        onlyFamilies: data['isOnlyFamily'] ?? '',
+                        maxNumberOfParticipants: data['maxNumberOfParticipants'] ?? '',
                         googleMapsLink: data['googleMapsLink'] ?? '',
-                        adventureDescription: data['AdventureDescription'] ?? '',
-                        locationName: data['TheNameOfTheLocation'] ?? '',
+                        adventureDescription: data['adventureDescription'] ?? '',
+                        locationName: data['locationName'] ?? '',
                       );
                     }).toList(),
                   );
                 },
               )
-
             ],
           ),
         ),
@@ -163,31 +201,157 @@ class _AdventuresContainerScreenState extends State<AdventuresContainerScreen> {
   Map<String, dynamic> _convertDocumentToJson(DocumentSnapshot document) {
     final Map<String, dynamic> data = document.data() as Map<String, dynamic>;
     // Convert Timestamp to milliseconds since Unix epoch
-    final Timestamp creationTimestamp = data['AdventureCreationDate'] as Timestamp;
+    final Timestamp creationTimestamp = data['adventureCreationDate'] as Timestamp;
     final int milliseconds = creationTimestamp.millisecondsSinceEpoch;
-    data['AdventureCreationDate'] = milliseconds;
+    data['adventureCreationDate'] = milliseconds;
+    print('data[adventureCreationDate].runtimeType');
+    print(data['adventureCreationDate'].runtimeType);
     return data;
+  }
+  // ------------- convert to Json
+
+  void _showFilterOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Filter Options'),
+              ListTile(
+                title: const Text('Select gender group:'),
+                trailing: DropdownButton<String>(
+                  value: _genderFilter,
+                  onChanged: (String? newValue1) {
+                    print('Selected value: $newValue1');
+                    setState(() {
+                      _genderFilter = newValue1 ?? 'All';
+                    });
+                  },
+                  items: ['All', 'Only Females', 'Only Males', 'Both genders']
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          color: value ==  _genderFilter ? Color(0xFF700464) : null,
+                        ),
+                      ),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ),
+
+              ListTile(
+                title: const Text('Select difficulty level:'),
+                trailing: DropdownButton<String>(
+                  value: _difficultyFilter,
+                  onChanged: (String? newValue) {
+                    print('Selected value: $newValue');
+                    setState(() {
+                      _difficultyFilter = newValue ?? 'All';
+                    });
+                  },
+                  items: ['All', 'Easy', 'Moderate', 'Challenging']
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          color: value == _difficultyFilter ? Color(0xFF700464) : null,
+                        ),
+                      ),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ),
+              ElevatedButton(
+                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Color(0xFF700464))),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the bottom sheet
+                  // Trigger a new query based on the selected filters
+                  _updateAdventuresStream();
+                },
+                child: const Text('Apply Filters'),
+              ),
+
+              // Add Reset Filter Button
+              ElevatedButton(
+                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the bottom sheet
+                  // Reset filters
+                  setState(() {
+                    _genderFilter = 'All';
+                    _difficultyFilter = 'All';
+                  });
+                  // Trigger a new query based on the selected filters
+                  _updateAdventuresStream();
+                },
+                child: const Text('Reset Filters'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateAdventuresStream( ) {
+    // Update the _adventuresStream based on the selected filters
+    var adventureType = name;
+
+    Query adventuresQuery = FirebaseFirestore.instance.collection('adventure').where("typeOfAdventure", isEqualTo: adventureType);
+
+
+
+    // Apply filtering based on gender
+    if (_genderFilter != 'All') {
+      adventuresQuery = adventuresQuery.where('Gender', isEqualTo: _genderFilter);
+    }
+
+
+    // Apply filtering based on difficulty
+    if (_difficultyFilter != 'All') {
+      adventuresQuery = adventuresQuery.where('levelOfDifficulty', isEqualTo: _difficultyFilter);
+    }
+
+    // Update the _adventuresStream with the modified query
+    setState(() {
+      _adventuresStream = adventuresQuery.snapshots();
+
+
+
+    });
+
   }
 }
 
 
-class ReusableCard extends StatelessWidget {
+class ReusableCard extends StatefulWidget {
 
 
-  final DateTime AdventureCreationDate;
-  final String  AdventureID;
+  final DateTime adventureCreationDate;
+  final String  adventureID;
   final String uuid;
   final String count;
-  final String adven_provider_Name;
-  final String type_of_Adventure;
+  final String adventureProviderName;
+  final String typeOfAdventure;
   final String adventureDescription;
-  final String Phone_Number;
+  final String phoneNumber;
   final String difficultyLevel;
 
-  final String StartDate;
-  final String EndDate;
-  final String StartTime;
-  final String EndTime;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
 
 
   final String onlyFamilies;
@@ -195,377 +359,494 @@ class ReusableCard extends StatelessWidget {
   final String age;
   final String gender;
 
+  final String equipmentProvided;
   final String freeAdventure;
   final String price;
-  final String max_number_of_Participants;
+  final String maxNumberOfParticipants;
   final String googleMapsLink;
   final String locationName;
 
-  ReusableCard({
+ // int _currentPage = 0;
 
-    required this.AdventureCreationDate,
-    required this.AdventureID,
+  final List<String> _images = [
+    'assets/images/hiking.jpg',
+    'assets/images/horseback.jpg',
+    'assets/images/mountain.png',
+    'assets/images/cycling.jpg',
+  ];
+
+  ReusableCard({
+    required this.adventureCreationDate,
+    required this.adventureID,
     required this.uuid,
     required this.count,
-    required this.adven_provider_Name,
-    required this.type_of_Adventure,
+    required this.adventureProviderName,
+    required this.typeOfAdventure,
     required this.adventureDescription,
-    required this.Phone_Number,
+    required this.phoneNumber,
     required this.difficultyLevel,
 
-    required this.StartDate,
-    required this.EndDate,
-    required this.StartTime,
-    required this.EndTime,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
 
     required this.onlyFamilies,
     required this.adventureNature,
     required this.gender,
     required this.age,
 
+    required this.equipmentProvided,
     required this.freeAdventure,
     required this.price,
-    required this.max_number_of_Participants,
+    required this.maxNumberOfParticipants,
     required this.googleMapsLink,
     required this.locationName,
-
 
   });
 
   @override
+  _ReusableCardState createState() => _ReusableCardState();
+}
+
+class _ReusableCardState extends State<ReusableCard> {
+  int _currentPage = 0;
+
+
+
+  @override
   Widget build(BuildContext context) {
 
-     return GFCard(
+    DateTime adventureCreationDate = widget.adventureCreationDate;
+    String adventureID = widget.adventureID;
+    String uuid = widget.uuid;
+    String count = widget.count;
+    String adventureProviderName = widget.adventureProviderName;
+    String typeOfAdventure = widget.typeOfAdventure;
+    String adventureDescription = widget.adventureDescription;
+    String phoneNumber = widget.phoneNumber;
+    String difficultyLevel = widget.difficultyLevel;
+
+    String startDate = widget.startDate;
+    String endDate = widget.endDate;
+    String startTime = widget.startTime;
+    String endTime = widget.endTime;
+
+    String onlyFamilies = widget.onlyFamilies;
+    String adventureNature = widget.adventureNature;
+    String age = widget.age;
+    String gender = widget.gender;
+
+    String equipmentProvided =  widget.equipmentProvided;
+    String freeAdventure = widget.freeAdventure;
+    String price = widget.price;
+    String maxNumberOfParticipants = widget.maxNumberOfParticipants;
+    String googleMapsLink = widget.googleMapsLink;
+    String locationName = widget.locationName;
+    List<String> images = widget._images;
+
+
+
+
+    // Parse the string into a DateTime object using a custom format
+    List<String> dateParts = endDate.split('/');
+    int year = int.parse(dateParts[0]);
+    int month = int.parse(dateParts[1]);
+    int day = int.parse(dateParts[2]);
+    DateTime formatedendDate = DateTime(year, month, day);
+
+    print('Original Date String: $formatedendDate');
+
+    DateTime currentDate = DateTime.now();
+
+    // Compare the two DateTime objects
+    if (formatedendDate.isBefore(currentDate)) {
+      print('The converted date is before the current date.');
+    } else if (formatedendDate.isAfter(currentDate)) {
+      print('The converted date is after the current date.');
+    } else {
+      print('The converted date is the same as the current date.');
+    }
+
+    return GFCard(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
       margin: const EdgeInsets.all(3.0),
-       buttonBar: GFButtonBar(
-         children: <Widget>[
-           //icons
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               const Text('🐎', style: TextStyle(fontSize: 20)),
-             //  const Icon(Icons.category_outlined, color: Colors.teal),
-               const SizedBox(width: 5.0),
-               type_of_Adventure != "" ? Text(type_of_Adventure) : Text(''),
-               const Spacer(),
-               age != "" ? Text(age) : Text(''),
-             ],
-           ),
-           const SizedBox(height: 3),
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               Icon(Icons.accessibility, color: Colors.teal),
-               SizedBox(width: 5.0),
-               difficultyLevel != "" ? Text(difficultyLevel) : Text(''),
-               onlyFamilies != "" ? Text(onlyFamilies) : Text(''),
-             ],
-           ),
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               Icon(Icons.group, color: Colors.teal),
-               SizedBox(width: 5.0),
-               adventureNature != "" ? Text(adventureNature) : Text(''),
-               Spacer(),
-               max_number_of_Participants != "" ? Text(max_number_of_Participants) : Text(''),
-             ],
-           ),
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               Icon(Icons.group, color: Colors.teal),
-               SizedBox(width: 5.0),
-               Spacer(),
-               gender != "" ? Text(gender) : Text(''),
-             ],
-           ),
-           const SizedBox(height: 10),
-           //Text
-           Align(
-             alignment: Alignment.centerLeft,
-             //NameoftheHotel
-             child: Text(
-               adven_provider_Name != "" || adven_provider_Name.isEmpty ? adven_provider_Name : '',
-               textAlign: TextAlign.left,
-               style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 18),
-             ),
-           ),
-           const SizedBox(height: 10),
-           //Text
-           Align(
-             alignment: Alignment.centerLeft,
-             //NameoftheHotel
-             child: Text(
+      buttonBar: GFButtonBar(
+        children: <Widget>[
+          //icons
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const SizedBox(height: 3),
+                      // difficultyLevel
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.accessibility, color: Color(0xFF700464)),
+                          difficultyLevel != "" ? Text(difficultyLevel) : const Text(''),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      // adventureNature
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.people, color: Color(0xFF700464)),
+                          adventureNature != "" ? Text(adventureNature) : const Text(''),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      // Gender
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                            const Icon(Icons.groups, color: Color(0xFF700464)),
+                            gender != "" ? Text(" $gender") : const Text(''),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      // endDate
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.date_range, color: Color(0xFF700464)),
+                          endDate != "" ? Text('End Date: $endDate') : const Text(''),
+                        ],
+                      ),
+                    ]
+                ),
+                const Spacer(),
+                // Images
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
 
-               adventureDescription ?? '',
-               textAlign: TextAlign.left,
-               style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
-             ),
-           ),
-           const SizedBox(height: 8),
-           Row(
-             mainAxisAlignment: MainAxisAlignment.start,
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               //StartDate
-               Row(
-                 crossAxisAlignment: CrossAxisAlignment.center,
-                 children: <Widget>[
-                   Icon(Icons.calendar_month, color: Colors.teal),
-                   SizedBox(width: 1.0),
-                   Text(
-                     "Starts on: ",
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                         fontWeight: FontWeight.normal,
-                         fontSize: 16,
-                         color: Colors.black54),
-                   ),
-                   Text(
-                     StartDate ?? '',
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                         fontWeight: FontWeight.normal,
-                         fontSize: 16,
-                         color: Colors.black54),
-                   ),
-                 ],
-               ),
-               const Spacer(),
-               Row(
-                 crossAxisAlignment: CrossAxisAlignment.center,
-                 children: <Widget>[
-                   Icon(Icons.watch_later, color: Colors.teal),
-                   SizedBox(width: 1.0),
-                   Text(
-                     StartTime ?? '',
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                         fontWeight: FontWeight.normal,
-                         fontSize: 16,
-                         color: Colors.black54),
-                   ),
-                 ],
-               ),
-             ],
-           ),
-           Row(
-//mainAxisAlignment:MainAxisAlignment.start,
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-//StartDate
-               Row(
-                 crossAxisAlignment: CrossAxisAlignment.center,
-                 children: <Widget>[
-                   Icon(
-                     Icons.calendar_month,
-                     color: Colors.teal,
-                   ),
-                   SizedBox(
-                     width: 1.0,
-                   ),
-                   Text(
-                     "End on:    ",
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                       fontWeight: FontWeight.normal,
-                       fontSize: 16,
-                       color: Colors.black54,
-                     ),
-                   ),
-                   SizedBox(
-                     width: 5.0,
-                   ),
-                   Text(
-                    EndDate ?? '',
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                       fontWeight: FontWeight.normal,
-                       fontSize: 16,
-                       color: Colors.black54,
-                     ),
-                   ),
-                 ],
-               ),
-               const Spacer(),
-               Row(
-                 crossAxisAlignment: CrossAxisAlignment.center,
-                 children:   <Widget>[
-                   Icon(
-                     Icons.watch_later,
-                     color: Colors.teal,
-                   ),
-                   SizedBox(
-                     width: 1.0,
-                   ),
-                   Text(
-                     EndTime ?? '',
-                     textAlign: TextAlign.left,
-                     style: TextStyle(
-                       fontWeight: FontWeight.normal,
-                       fontSize: 16,
-                       color: Colors.black54,
-                     ),
-                   ),
-                 ],
-               ),
-             ],
-           ),
-           const SizedBox(
-             height: 8,
-           ),
-           Align(
-             alignment: Alignment.centerLeft,
-             //NameoftheHotel
-             child: Text(
-               locationName ?? '',
-               textAlign: TextAlign.left,
-               style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
-             ),
-           ),
-           const SizedBox(
-             height: 8,
-           ),
-           Row(
-             crossAxisAlignment: CrossAxisAlignment.center,
-             children: <Widget>[
-               ElevatedButton(
-                 onPressed: null,
-                 style: TextButton.styleFrom(
-                   backgroundColor: Colors.transparent,
-                 ),
-                 child: Text(
-                   price ?? '',
-                   textAlign: TextAlign.left,
-                   style: const TextStyle(
-                     fontWeight: FontWeight.normal,
-                     fontSize: 16,
-                     color: Colors.black54,
-                   ),
-                 ),
-               ),
-               const Spacer(),
-               ElevatedButton(
-                 onPressed: () {
-                   final snackBar = SnackBar(
-                     content: const Text('Do you want to open the location in Google Maps?'),
-                     action: SnackBarAction(
-                       label: 'Open',
-                       onPressed: () async {
-                         final url = Uri.parse( googleMapsLink );
-                         print(url);
-                         if (await canLaunch(url.toString())) {
-                           await launch(url.toString());
-                         } else {
-                           throw 'Could not launch $url';
-                         }
-                       },
-                     ),
-                   );
-                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                 },
-                 child: const Icon(Icons.location_on_outlined, size: 30, color: Colors.teal),
-                 style: TextButton.styleFrom(
-                   shape: RoundedRectangleBorder(
-                     borderRadius: BorderRadius.circular(9.0),
-                   ),
-                   backgroundColor: Colors.white,
-                 ),
-               ),
+                      Container(
+                        width: 150,
+                        height: 100,
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            PageView(
+                              scrollDirection: Axis.horizontal,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                              children: images.asMap().entries.map((entry) {
+                                final int index = entry.key;
+                                final String image = entry.value;
 
-               const Spacer(),
+                               return GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          child: Container(
 
-               ElevatedButton(
-                 onPressed: () {
+                                            height: 400,
+                                            width: double.infinity,
+                                             color: Colors.transparent, // Background color behind the image
+                                            child: PageView.builder(
+                                              itemCount: images.length,
+                                              controller: PageController(initialPage: _currentPage),
+                                              onPageChanged: (index) {
+                                                setState(() {
+                                                  _currentPage = index;
+                                                });
+                                              },
+                                              itemBuilder: (context, index) {
+                                                return Stack(
+                                                  alignment: Alignment.topRight,
+                                                  children: [
+                                                    Container(
 
-                   User? user = FirebaseAuth.instance.currentUser;
-                   String userId = "";
-                   if (user != null) {
-                     userId = user.uid;
-                     print('Current User ID: $userId');
-                     // Navigate to My Custom Form
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) =>  MyCustomForm(
+                                                       height:400,
+                                                      width: double.infinity,
+                                                       color: Colors.black, // Background color behind the image
+                                                      child: Image.asset(
+                                                        images[index],
+                                                          fit: BoxFit.fill,
+                                                      ),
 
-                      // ----- This Goes to the Next Screen for confirmation
-                       AdventureCreationDate : AdventureCreationDate,
-                       uuid :uuid,
-                       AdventureID :AdventureID,
-                       count    :count,
-                       adven_provider_Name  :adven_provider_Name,
-                       type_of_Adventure  :type_of_Adventure,
-                       adventureDescription:adventureDescription,
-                       Phone_Number:Phone_Number,
-                       difficultyLevel :difficultyLevel,
-
-                       StartDate :StartDate,
-                       EndDate:EndDate,
-                       StartTime:StartTime,
-                       EndTime:EndTime,
-
-                       onlyFamilies:onlyFamilies,
-                       adventureNature:adventureNature,
-                       age:age,
-                       gender:gender,
-
-                       freeAdventure:freeAdventure,
-                       price:price,
-                       max_number_of_Participants:max_number_of_Participants,
-                       googleMapsLink:googleMapsLink,
-                       locationName:locationName,
+                                                    ),
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                    Positioned(
+                                                      top: 10.0,
+                                                      left: 10.0,
+                                                      child: Container(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.black.withOpacity(0.7),
+                                                          borderRadius: BorderRadius.circular(3.0),
+                                                        ),
+                                                        child: Text(
+                                                          '${index + 1} / ${images.length}',
+                                                          style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 10,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          child: Image.asset(
+                                            image,
+                                            width: 150,
+                                            height: 100,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 5.0,
+                                          left: 5.0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(0.7),
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
+                                            child: Text(
+                                              '${index + 1} / ${images.length}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 8,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
 
 
 
-                       )),
-                     );
-                   }  else {
-
-                     print('No user is currently logged in.');
-                     // User is not logged in, show an alert
-                 //    Navigator.of(context).pop(); // Close the dialog
-                     _logout(context);
-
-                   }
-                 },
-                 style: TextButton.styleFrom(
-                   shape: RoundedRectangleBorder(
-                     borderRadius: BorderRadius.circular(32.0),
-                   ),
-                   backgroundColor: Colors.red,
-                 ),
-                 child: const Text(
-                   "Let's do it",
-                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                 ),
-               ),
-
-             ],
-           ),
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
 
 
 
+                    ]
+                )
+              ]
+          ),
 
-         ],
-       ),
+          const SizedBox(height: 8, ),
+          // Price -- Location -- Let's do it
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              // Price
+              ElevatedButton(
+                onPressed: null,
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                ),
+                child: Text(
+                  price ?? '',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const Spacer(),
+             // Location
+              ElevatedButton(
+                onPressed: () {
+                  final snackBar = SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    content: const Text('Do you want to open the location in Google Maps?'),
+                    action: SnackBarAction(
+                      label: 'Open' ,
+                      onPressed: () async {
+                        final url = Uri.parse( googleMapsLink );
+                        print(url);
+                        if (await canLaunch(url.toString())) {
+                          await launch(url.toString());
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32.0),
+                    side: const BorderSide(color: Color(0xFF700464)),
+                  ),
+                  backgroundColor: Colors.white,
+                  elevation: 5,
+                ),
+                child: const Icon(Icons.location_on_outlined, size: 30, color: Color(0xFF700464)),
+              ),
+              const Spacer(),
 
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Stack(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        User? user = FirebaseAuth.instance.currentUser;
+                        String userID = "";
 
-     );
+                        // Parse the string into a DateTime object using a custom format
+                        List<String> dateParts = endDate.split('/');
+                        int year = int.parse(dateParts[0]);
+                        int month = int.parse(dateParts[1]);
+                        int day = int.parse(dateParts[2]);
+                        DateTime formatedendDate = DateTime(year, month, day);
 
+                        print('Original Date String: $formatedendDate');
 
+                        DateTime currentDate = DateTime.now();
 
+                        // Compare the two DateTime objects
+                        if (formatedendDate.isBefore(currentDate)) {
+                          print('The converted date is before the current date.');
+                        } else if (formatedendDate.isAfter(currentDate)) {
+                          print('The converted date is after the current date.');
+                        } else {
+                          print('The converted date is the same as the current date.');
+                        }
 
+                        if (user != null ) {
+                          userID = user.uid;
+                          print('Current User ID: $userID');
+                          // Navigate to My Custom Form
 
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MyCustomForm(
+
+                                // ----- This Goes to the Next Screen for confirmation
+                                adventureCreationDate : adventureCreationDate,
+                                uuid :uuid,
+                                adventureID :adventureID,
+                                count    :count,
+                                adventureProviderName  :adventureProviderName,
+                                typeOfAdventure  :typeOfAdventure,
+                                adventureDescription:adventureDescription,
+                                phoneNumber:phoneNumber,
+                                difficultyLevel :difficultyLevel,
+
+                                startDate :startDate,
+                                endDate:endDate,
+                                startTime:startTime,
+                                endTime:endTime,
+
+                                onlyFamilies:onlyFamilies,
+                                adventureNature:adventureNature,
+                                age:age,
+                                gender:gender,
+
+                                equipmentProvided: equipmentProvided,
+                                freeAdventure:freeAdventure,
+                                price:price,
+                                maxNumberOfParticipants: maxNumberOfParticipants ,
+                                googleMapsLink:googleMapsLink,
+                                locationName:locationName,
+                                images : images,
+
+                              ),
+                            ),
+                          );
+                        } else if (user == null) {
+                          print('No user is currently logged in.');
+                          // User is not logged in, show an alert
+                          _logout(context);
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                          side: const BorderSide(color:  Colors.white,),
+                        ),
+                        backgroundColor:  Color(0xFF700464),
+                        elevation: 5,
+                      ),
+                      child: const Text(
+                        "View",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+
+            ],
+          ),
+
+          // Location Name
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(),
+              Align(
+                alignment: Alignment.center,
+                // Location Name
+                child: Text(
+                  locationName ?? '',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+                ),
+              ),
+              const Spacer(),
+            ],
+          )
+        ],
+      ),
+    );
   }
 
-
-
-
-// Create a function to handle logout
+  // Create a function to handle logout
   Future<void> _logout(BuildContext context) async {
     try {
       // Clear cached user data
@@ -579,7 +860,7 @@ class ReusableCard extends StatelessWidget {
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => SignUp()),
-                 (Route<dynamic> route) => false);
+                (Route<dynamic> route) => false);
       });
 
       // Replace '/login' with your desired route
@@ -588,8 +869,7 @@ class ReusableCard extends StatelessWidget {
     }
   }
 
-
-  // Function to clear cached user data
+// Function to clear cached user data
   Future<void> _clearCachedUserData() async  {
 
     try {
@@ -605,10 +885,11 @@ class ReusableCard extends StatelessWidget {
   }
 
 
-
-
-
 }
+
+
+
+
 
 
 

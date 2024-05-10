@@ -11,12 +11,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 // Define a custom Form widget.
-class MyCustomForm extends StatefulWidget {
+class FavoriteAdventuresDetails extends StatefulWidget {
 
-  final DateTime adventureCreationDate ;
-  final String uuid;
-  final String adventureID;
-  final String count  ;
+   final DateTime? AdventureAddedDate ;
+   final String adventureID;
   final String  adventureProviderName ;
   final String typeOfAdventure ;
   final String adventureDescription;
@@ -33,20 +31,18 @@ class MyCustomForm extends StatefulWidget {
   final String age;
   final String gender;
 
-  final String equipmentProvided;
   final String freeAdventure;
   final String price;
   final String  maxNumberOfParticipants;
   final String googleMapsLink;
   final String locationName;
-  final List<String>  images;
+  final List  images;
 
-  const MyCustomForm({Key? key,
+  const FavoriteAdventuresDetails({Key? key,
 
-    required this.adventureCreationDate,
+    required this.AdventureAddedDate,
     required this.adventureID,
-    required this.uuid,
-    required this.count,
+
     required this.adventureProviderName,
     required this.adventureDescription,
     required this.phoneNumber,
@@ -59,7 +55,6 @@ class MyCustomForm extends StatefulWidget {
     required this.adventureNature,
     required this.age,
     required this.gender,
-    required this.equipmentProvided,
     required this.freeAdventure,
     required this.price,
     required this.maxNumberOfParticipants,
@@ -72,13 +67,13 @@ class MyCustomForm extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  MyCustomFormState createState() => MyCustomFormState(
+  FavoriteAdventuresDetailsState createState() => FavoriteAdventuresDetailsState(
 
 
-    adventureCreationDate : adventureCreationDate,
+     AdventureAddedDate : AdventureAddedDate,
     adventureID : adventureID,
-    uuid :uuid,
-    count    :count,
+
+
     adventureProviderName  : adventureProviderName,
     typeOfAdventure  :typeOfAdventure,
     adventureDescription:adventureDescription,
@@ -95,7 +90,6 @@ class MyCustomForm extends StatefulWidget {
     age:age,
     gender:gender,
 
-    equipmentProvided: equipmentProvided,
     freeAdventure:freeAdventure,
     price:price,
     maxNumberOfParticipants:maxNumberOfParticipants,
@@ -105,8 +99,6 @@ class MyCustomForm extends StatefulWidget {
     images : images,
 
   );
-
-
 }
 
 
@@ -126,7 +118,7 @@ class DotIndicator extends StatelessWidget {
   final int activeIndex;
 
 
-  const DotIndicator({super.key, required this.numberOfDots, required this.activeIndex,  });
+  DotIndicator({required this.numberOfDots, required this.activeIndex,  });
 
   @override
   Widget build(BuildContext context) {
@@ -149,30 +141,31 @@ class DotIndicator extends StatelessWidget {
 }
 
 
-class MyCustomFormState extends State<MyCustomForm> {
+class FavoriteAdventuresDetailsState extends State<FavoriteAdventuresDetails> {
 
   bool _isSubmitting = false;
   int _currentPage = 0;
-  int numOfReservedAdventure = 1;
-  bool isFavorite = false;
+  int numOfReservedAdven = 1;
+  bool isFavorited = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+
   void _increment() {
     setState(() {
-       int intMaxNumberOfParticipants = int.parse(maxNumberOfParticipants);
-      if (numOfReservedAdventure < intMaxNumberOfParticipants) {
-        ++numOfReservedAdventure;
-        _calculateTotalPrice();
+      int intMaxNumberOfParticipants = int.parse(maxNumberOfParticipants);
+      if (numOfReservedAdven < intMaxNumberOfParticipants) {
+        ++numOfReservedAdven;
+        _calculatTotalPrice();
       } else {
         // Show an alert that you have reached the max number of participants
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Reached the maximum number of participants'),
-               content:  const Text('You have reached the maximum number of participants for this adventure.'),
-            actions: <Widget>[
+              title: const Text('Opps'),
+              content:  const Text('You have reached the maximum number of participants for this adventure.'),
+              actions: <Widget>[
                 TextButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF700464)),
@@ -191,9 +184,9 @@ class MyCustomFormState extends State<MyCustomForm> {
   }
   void _decrement() {
     setState(() {
-      if (numOfReservedAdventure > 1) {
-        --numOfReservedAdventure;
-        _calculateTotalPrice();
+      if (numOfReservedAdven > 1) {
+        --numOfReservedAdven;
+        _calculatTotalPrice();
       }
     });
   }
@@ -205,33 +198,25 @@ class MyCustomFormState extends State<MyCustomForm> {
     );
   }
 
-  int _calculateTotalPrice() {
+  int _calculatTotalPrice() {
 
     String currency = price.substring(0, 3);  // Extract the first three characters ("OMR")
     String amount = price.substring(4);       // Extract the characters starting from the fourth position ("15")
 
-    if (kDebugMode) {
-      print("Currency: $currency");
-    }
-    if (kDebugMode) {
-      print("Amount: $amount");
-    }
-    if (kDebugMode) {
-      print("Number of Reserved Adventure: $numOfReservedAdventure");
-    }
+    print("Currency: $currency");
+    print("Amount: $amount");
+    print("Number of Reserved Adventure: $numOfReservedAdven");
 
     int  intPrice = int.parse(amount);
-    int totalPrice = numOfReservedAdventure   * intPrice ;
-    if (kDebugMode) {
-      print("TotalPrice: $totalPrice " );
-    }
+    int TotalPrice = numOfReservedAdven * intPrice ;
+    print("TotalPrice: $TotalPrice " );
 
-    return totalPrice; // Return the calculated TotalPrice
+    return TotalPrice; // Return the calculated TotalPrice
   }
 
   void _confirmBooking(BuildContext context) {
 
-    int totalPrice = _calculateTotalPrice(); // Call _ calculate totalPrice to get the calculated totalPrice
+    int TotalPrice = _calculatTotalPrice(); // Call _calculatTotalPrice to get the calculated TotalPrice
 
     showDialog(
       context: context,
@@ -242,13 +227,13 @@ class MyCustomFormState extends State<MyCustomForm> {
             text: TextSpan(
               children: [
                 const TextSpan(
-                  text: ' \nNumber of reserved adventures: ',  style: TextStyle(color: Colors.black)
+                    text: ' \nNumber of reserved adventures: ',  style: TextStyle(color: Colors.black)
                 ),
-                _boldTextSpan(numOfReservedAdventure.toString()),
+                _boldTextSpan(numOfReservedAdven.toString()),
                 const TextSpan(
-                  text: ' \n \nTotal Price: ',  style: TextStyle(color: Colors.black)
+                    text: ' \n \nTotal Price: ',  style: TextStyle(color: Colors.black)
                 ),
-                _boldTextSpan('$totalPrice OMR'),
+                _boldTextSpan('$TotalPrice OMR'),
               ],
             ),
           ),
@@ -257,10 +242,8 @@ class MyCustomFormState extends State<MyCustomForm> {
             TextButton(
               child: const Text('Yes, Confirm', style: TextStyle(color: Color(0xFF700464))),
               onPressed: () {
-
-                Navigator.of(context).pop(); // Close the dialog
-               // Navigator.push( context, MaterialPageRoute(builder: (context) =>   CongratsScreen()),);
                 _confirmAdventure();
+                Navigator.of(context).pop(); // Close the dialog
               },
             ),
             TextButton(
@@ -277,10 +260,9 @@ class MyCustomFormState extends State<MyCustomForm> {
   }
 
   //  Screen Content is displayed from here
-  final  DateTime adventureCreationDate  ;
+  final  DateTime? AdventureAddedDate  ;
   final String adventureID;
-  final String uuid ;
-  final String count ;
+
   final String adventureProviderName ;
   final String typeOfAdventure  ;
   final String adventureDescription;
@@ -295,20 +277,18 @@ class MyCustomFormState extends State<MyCustomForm> {
   final  String age ;
   final String gender ;
   final String freeAdventure ;
-  final String equipmentProvided;
   final String price ;
   final  String maxNumberOfParticipants;
   final String googleMapsLink;
   final String locationName ;
-   final List images;
+  final List? images;
 
- //  final String Num Of Reserved Adventure;
+  //  final String NumOfReservedAdven;
 
-  MyCustomFormState({
-    required this.adventureCreationDate,
+  FavoriteAdventuresDetailsState({
+    required this.AdventureAddedDate,
     required this.adventureID,
-    required this.uuid,
-    required this.count,
+
     required this.adventureProviderName,
     required this.typeOfAdventure,
     required this.adventureDescription,
@@ -323,25 +303,12 @@ class MyCustomFormState extends State<MyCustomForm> {
     required this.age,
     required this.gender,
     required this.freeAdventure,
-    required this.equipmentProvided,
     required this.price,
     required this.maxNumberOfParticipants,
     required this.googleMapsLink,
     required this.locationName,
     required this.images,
   });
-
-@override
-  void setState(VoidCallback fn) {
-    // TODO: implement setState
-    super.setState(fn);
-
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    User? user = _auth.currentUser;
-    final userID = user!.uid;
-    countUserAdventureTypes(userID);
-    countUserAdventureReservedAdventures( userID, adventureID);
-  }
 
 
   @override
@@ -377,64 +344,48 @@ class MyCustomFormState extends State<MyCustomForm> {
         ? themeProvider.darkTheme.primaryColor
         : const Color(0xFF700464);
 
-   // User? currentUser = FirebaseAuth.instance.currentUser;
-   // if (kDebugMode) {
-   //   print('User ID: ${currentUser?.uid}');
-  //  }
-
-    User? user = FirebaseAuth.instance.currentUser;
-    String userID = "";
-    userID = user!.uid;
-    bool paid = false;
-    String bookingStatus = determinebookingStatus();
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (kDebugMode) {
+      print('User ID: ${currentUser?.uid}');
+    }
 
 //   add to favorites
     Future addToFavorite() async {
 
-      // Call _calculateTotalPrice to get the calculated TotalPrice
-      int totalPrice = _calculateTotalPrice();
-      if (kDebugMode) {
-        print('Current Total Price -->-------------------***');
-      }
-      if (kDebugMode) {
-        print(totalPrice);
-      }
-
-
+      // Call _calculatTotalPrice to get the calculated TotalPrice
+      int TotalPrice = _calculatTotalPrice();
+      print('Current Total Price -->-------------------***');
+      print(TotalPrice);
 
       final favoriteAdventure = {
-        "adventureAddedDate" :  DateTime.now(),
-        'adventureID': adventureID,
-        'adventureBookingID': uuid,
-        'userID': userID,
-        'numberOfReservedAdventures': numOfReservedAdventure.toString(),
-        'paid' : paid,
-        'bookingStatus' : bookingStatus,
+        "AdventureAddedDate" :  DateTime.now(),
+        'adventureID': adventureID, // add the UUID to the map
+        'userID': currentUser?.uid,
+        // 'Number of Reserved Adventures': numOfReservedAdven,
+        // 'Paid' : paid,
         'serviceProviderName': adventureProviderName,
         'typeOfAdventure': typeOfAdventure,
         'adventureDescription': adventureDescription,
-        'phoneNumber': phoneNumber,
+        'PhoneNumber':phoneNumber,
         'levelOfDifficulty' : difficultyLevel ,
         'startDate' : startDate,
         'endDate': endDate,
         'startTime':  startTime,
-        'endTime':endTime,
-        'isOnlyFamily': onlyFamilies,
+        'endTime': endTime,
+        'isOnlyFamily' : onlyFamilies,
         'adventureNature' :  adventureNature,
-        'gender' : gender ,
-        'age': age ,
-        "isEquipmentProvided" : equipmentProvided,
-        "isFreeAdventure" : freeAdventure,
-        'price' : totalPrice.toString(),
-        'maxNumberOfParticipants' :  maxNumberOfParticipants,
-        'googleMapsLink' : googleMapsLink,
-        'locationName' : locationName,
-        'imageUrls': images,
-
+        'Gender' : gender ,
+        'Age' : age ,
+        "IsFreeAdventure" : freeAdventure,
+        'Price' : TotalPrice.toString(),
+        'MaxNumberOfParticipants' : maxNumberOfParticipants,
+        'googleMapsLink ': googleMapsLink ,
+        'LocationName': locationName ,
+        'imageUrls' : images
       };
 
       FirebaseFirestore.instance.collection("user-favorite-items").
-      doc(userID).
+      doc(currentUser?.uid).
       collection("favorite-items").
       add(favoriteAdventure);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -480,7 +431,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           // Query to find the specific document to remove
           QuerySnapshot querySnapshot = await FirebaseFirestore.instance
               .collection("user-favorite-items")
-              .doc(userID)
+              .doc(currentUser?.uid)
               .collection("favorite-items")
               .where('adventureID', isEqualTo: adventureIDToRemove)
               .get();
@@ -501,14 +452,10 @@ class MyCustomFormState extends State<MyCustomForm> {
             );
           } else {
             // Document not found, you may want to handle this case
-            if (kDebugMode) {
-              print('Document not found in favorites');
-            }
+            print('Document not found in favorites');
           }
         } catch (e) {
-          if (kDebugMode) {
-            print('Error removing from favorites: $e');
-          }
+          print('Error removing from favorites: $e');
           // Handle the error, e.g., show an error message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -523,9 +470,6 @@ class MyCustomFormState extends State<MyCustomForm> {
       }
     }
 
-
-
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -533,7 +477,7 @@ class MyCustomFormState extends State<MyCustomForm> {
         title: const Text(
           'Adventure Confirmation',
           style: TextStyle(
-           // fontSize: 20,
+            // fontSize: 20,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.normal,
             color: Colors.white,
@@ -558,7 +502,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                     // adventure Provider Name
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      child:  SizedBox(
+                      child:  Container(
                         width: double.infinity,
                         height: 300,
                         child: Stack(
@@ -571,7 +515,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                                   _currentPage = index;
                                 });
                               },
-                              children: images.asMap().entries.map((entry) {
+                              children: images!.asMap().entries.map((entry) {
                                 final int index = entry.key;
                                 final String image = entry.value;
                                 return GestureDetector(
@@ -585,7 +529,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                                             width: double.infinity,
                                             color: Colors.transparent, // Background color behind the image
                                             child: PageView.builder(
-                                              itemCount: images.length,
+                                              itemCount: images!.length,
                                               controller: PageController(initialPage: _currentPage),
                                               onPageChanged: (index) {
                                                 setState(() {
@@ -601,7 +545,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                                                       width: double.infinity,
                                                       color: Colors.black, // Background color behind the image
                                                       child: Image.asset(
-                                                        images[index],
+                                                        images![index],
                                                         fit: BoxFit.fill,
                                                       ),
                                                     ),
@@ -624,7 +568,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                                                           borderRadius: BorderRadius.circular(10.0),
                                                         ),
                                                         child: Text(
-                                                          '${index + 1} / ${images.length}',
+                                                          '${index + 1} / ${images!.length}',
                                                           style: const TextStyle(
                                                             color: Colors.white,
                                                             fontWeight: FontWeight.bold,
@@ -667,7 +611,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                                               borderRadius: BorderRadius.circular(8.0),
                                             ),
                                             child: Text(
-                                              '${index + 1} / ${images.length}',
+                                              '${index + 1} / ${images!.length}',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -689,72 +633,73 @@ class MyCustomFormState extends State<MyCustomForm> {
                   ]
               ),
             ),
-        // Add to favorite
-         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(width: 20.0),
-           StreamBuilder(
-            stream: FirebaseFirestore.instance.collection("user-favorite-items").doc(FirebaseAuth.instance.currentUser !. uid)
-             .collection("favorite-items").where("adventureID", isEqualTo: widget.adventureID).snapshots(),
-             builder: (BuildContext context, AsyncSnapshot snapshot) {
-               if (snapshot.data == null) {
-                 return const Text("");
-               }
-               return Padding(
-                 padding: const EdgeInsets.only(right: 8),
-                 child: CircleAvatar(
-                   backgroundColor: Colors.transparent,
-                   child: IconButton(
-                     onPressed: () {
-                       if (snapshot.data.docs.length == 0) {
-                         // Item is not in favorites, add it
-                         addToFavorite();
-                       } else {
-                         // Item is already in favorites, remove it
-                         removeFromFavorite();
-                       }
-                     },
-                     icon: snapshot.data.docs.length == 0 ?
-                     const Icon(
-                       Icons.favorite_outline,
-                       color: Colors.red,
-                       size: 25,
-                     ) : const Icon( // Icon
-                       Icons.favorite,
-                       color: Colors.red,
-                       size: 25,
-                     ), // Icon
-                   ), // IconButton
-                 ), // CircleAvatar
-               ); // Padding
-              }
-             ),
-            const Spacer(),
-            DotIndicator(
-              numberOfDots:  images.length,
-              activeIndex: _currentPage,
+            // Add to favorite
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(width: 20.0),
+                // Add to favorite
+                StreamBuilder(
+                    stream: FirebaseFirestore.instance.collection("user-favorite-items").doc(FirebaseAuth.instance.currentUser !. uid)
+                        .collection("favorite-items").where("adventureID", isEqualTo: widget.adventureID).snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.data == null) {
+                        return const Text("");
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          child: IconButton(
+                            onPressed: () {
+                              if (snapshot.data.docs.length == 0) {
+                                // Item is not in favorites, add it
+                                addToFavorite();
+                              } else {
+                                // Item is already in favorites, remove it
+                                removeFromFavorite();
+                              }
+                            },
+                            icon: snapshot.data.docs.length == 0 ?
+                            const Icon(
+                              Icons.favorite_outline,
+                              color: Colors.red,
+                              size: 25,
+                            ) : const Icon( // Icon
+                              Icons.favorite,
+                              color: Colors.red,
+                              size: 25,
+                            ), // Icon
+                          ), // IconButton
+                        ), // CircleAvatar
+                      ); // Padding
+                    }
+                ),
+                const Spacer(),
+                DotIndicator(
+                  numberOfDots:  images!.length,
+                  activeIndex: _currentPage,
+                ),
+                const Spacer(),
+                IconButton(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  icon: const Icon(Icons.ios_share, color: Color(0xFF700464), size: 25,),
+                  onPressed: () {
+                    shareApp();
+                  },
+                ),
+                const SizedBox(width: 20.0),
+              ],
             ),
-            const Spacer(),
-            IconButton(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              icon: const Icon(Icons.ios_share, color: Color(0xFF700464), size: 25,),
-              onPressed: () {
-                shareApp();
-              },
-            ),
-            const SizedBox(width: 20.0),
-          ],
-        ),
-        const Divider(height: 0.5, color: Colors.grey,),
+            const Divider(height: 0.5, color: Colors.grey,),
 
-           // First Container
-           Container(
+            // First Container
+            Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 1.0),
                 borderRadius: BorderRadius.circular(8),
-                 color: Colors.white,
+                color: Colors.white,
               ),
               child: Column(
                   children: <Widget>[
@@ -768,7 +713,6 @@ class MyCustomFormState extends State<MyCustomForm> {
                         ),
                       ),
                     ),
-
                     // Type Of Adventure
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -779,7 +723,6 @@ class MyCustomFormState extends State<MyCustomForm> {
                         ),
                       ),
                     ),
-
                     // Adventure Description
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -814,20 +757,19 @@ class MyCustomFormState extends State<MyCustomForm> {
               ),
               child: Column(
                   children: <Widget>[
-                          ListTile(
-                            leading: const Icon(Icons.date_range),
-                            title: Text(
-                              'Starts on:  $startDate ',
-                            ),
-                            trailing: Text(
-                              startTime,  style: const TextStyle(fontSize: 12),
-                            ),
-                          ),
+                    ListTile(
+                      leading: const Icon(Icons.date_range),
+                      title: Text(
+                        'Starts on:  $startDate ',
+                      ),
+                      trailing: Text(
+                        startTime,  style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
                   ]
               ),
             ),
-
-          //  End Data and Time
+            //  End Data and Time
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
               decoration: BoxDecoration(
@@ -843,13 +785,12 @@ class MyCustomFormState extends State<MyCustomForm> {
                         'End on:     $endDate',
                       ),
                       trailing: Text(
-                          endTime,  style: const TextStyle(fontSize: 12),
+                        endTime,  style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ]
               ),
             ),
-
             // Price and Free Adventure
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -858,12 +799,12 @@ class MyCustomFormState extends State<MyCustomForm> {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.white,
               ),
-               child: _isSubmitting
+              child: _isSubmitting
                   ? const Center(
-                    child: CircularProgressIndicator(color: Colors.red),
-                 )
+                child: CircularProgressIndicator(color: Colors.red),
+              )
                   : Column(
-                  children: <Widget>[
+                children: <Widget>[
                   ListTile(
                     leading: const Icon(Icons.monetization_on),
                     title: Text(price),
@@ -872,7 +813,6 @@ class MyCustomFormState extends State<MyCustomForm> {
                 ],
               ),
             ),
-
             // Adventure Nature and if Family
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -886,17 +826,16 @@ class MyCustomFormState extends State<MyCustomForm> {
                     ListTile(
                       leading: const Icon(Icons.group),
                       title: Text(
-                          adventureNature,
+                        adventureNature,
                       ),
                       trailing: Text(
-                          onlyFamilies,  style: const TextStyle(fontSize: 12),
+                        onlyFamilies,  style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ]
               ),
             ),
-
-            // age and Gender
+            // Age and Gender
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
               decoration: BoxDecoration(
@@ -909,7 +848,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                     ListTile(
                       leading: const Icon(Icons.man),
                       title: Text(
-                        'age Group: $age',
+                        'Age Group: $age',
                       ),
                       trailing: Text(
                         'Gender: $gender', style: const TextStyle(fontSize: 12),
@@ -918,7 +857,6 @@ class MyCustomFormState extends State<MyCustomForm> {
                   ]
               ),
             ),
-
             //  Number of Participants
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -935,15 +873,12 @@ class MyCustomFormState extends State<MyCustomForm> {
                       title:   Text(
                           "Number of Participants:  $maxNumberOfParticipants"
                       ),
-                   //   trailing: Text(  maxNumberOfParticipants),
+                      //   trailing: Text(  maxNumberOfParticipants),
                     ),
                   ]
               ),
 
             ),
-
-
-
             // Location
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -968,9 +903,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                               label: 'Open',
                               onPressed: () async {
                                 final url = Uri.parse( googleMapsLink );
-                                if (kDebugMode) {
-                                  print(url);
-                                }
+                                print(url);
                                 if (await canLaunch(url.toString())) {
                                   await launch(url.toString());
                                 } else {
@@ -981,6 +914,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         },
+                        child: const Icon(Icons.location_on_outlined, size: 30, color: Color(0xFF700464)),
                         style: TextButton.styleFrom(
                           elevation: 10,
                           shape: RoundedRectangleBorder(
@@ -988,13 +922,12 @@ class MyCustomFormState extends State<MyCustomForm> {
                           ),
                           backgroundColor: Colors.white,
                         ),
-                        child: const Icon(Icons.location_on_outlined, size: 30, color: Color(0xFF700464)),
                       ),
                     ),
                   ]
               ),
             ),
-
+            // Number of reserved Tickets
             Container(
               margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
               decoration: BoxDecoration(
@@ -1010,13 +943,13 @@ class MyCustomFormState extends State<MyCustomForm> {
                           Icon(Icons.local_activity),
                         ]
                     ),
-                   const SizedBox(width: 12,),
+                    const SizedBox(width: 12,),
                     const Column(
                         children: <Widget>[
                           Text("Number of Reserved \n Adventures:"),
                         ]
                     ),
-                 const Spacer(),
+                    const Spacer(),
                     Column(
                         children: <Widget>[
                           TextButton.icon(onPressed: _increment, icon:  const Icon(Icons.add, color: Color(0xFF700464), size: 30,), label: const Text(''),),
@@ -1025,7 +958,7 @@ class MyCustomFormState extends State<MyCustomForm> {
 
                     Column(
                         children: <Widget>[
-                          CounterDisplay(count: numOfReservedAdventure),
+                          CounterDisplay(count: numOfReservedAdven),
                         ]
                     ),
 
@@ -1036,8 +969,6 @@ class MyCustomFormState extends State<MyCustomForm> {
                           TextButton.icon(onPressed: _decrement, icon:  const Icon(Icons.maximize, color: Color(0xFF700464), size: 30, ), label: const Text(''),),
                         ]
                     ),
-
-
                   ]
               ),
             ),
@@ -1063,9 +994,9 @@ class MyCustomFormState extends State<MyCustomForm> {
                     onPressed: () {
                       int convertedMaxNumberOfParticipants = int.tryParse(maxNumberOfParticipants) ?? 0;
                       if (convertedMaxNumberOfParticipants != 0) {
-                       _confirmBooking(context);
+                        //   _confirmBooking(context);
                         //Push the user to the payment screen
-                 //   Navigator.push( context, MaterialPageRoute(builder: (context) =>   CongratsScreen()),);
+                        Navigator.push( context, MaterialPageRoute(builder: (context) =>   CongratsScreen()),);
 
                       } else {
                         maxNumberOfParticipants == 0 ? null :  _confirmBooking(context);
@@ -1074,7 +1005,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                     },
                     child: const Text('Confirm', style: TextStyle( color: Colors.white, fontSize: 20),),
                   ),
-
+                  // While submitting
                   if (_isSubmitting == true)
                     Container(
                       height: 50,
@@ -1094,7 +1025,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                         ),
                       ),
                     ),
-
+                  // This adventure is fully booked
                   if (int.tryParse(maxNumberOfParticipants) == 0)
                     Container(
                       height: 50,
@@ -1115,6 +1046,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                       ),
                     ),
 
+                  // This adventure is expired
                   if (formattedendDate.isBefore(currentDate))
                     Container(
                       height: 50,
@@ -1123,7 +1055,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                           color: Colors.red.shade600,
                           borderRadius: BorderRadius.circular(30)
                       ),
-                       // Change to the desired color for the disabled button
+                      // Change to the desired color for the disabled button
                       child: const Center (
                         child: Padding(
                           padding: EdgeInsets.fromLTRB(20, 5, 20, 10),
@@ -1134,56 +1066,13 @@ class MyCustomFormState extends State<MyCustomForm> {
                         ),
                       ),
                     ),
-
                 ],
               ),
             )
-
           ],
         ),
       ),
     );
-  }
-
-
-// this function to determine the booking status
-  String determinebookingStatus() {
-
-    // Parse the string into a DateTime object using a custom format
-    List<String> dateParts = endDate.split('/');
-    int year = int.parse(dateParts[0]);
-    int month = int.parse(dateParts[1]);
-    int day = int.parse(dateParts[2]);
-    DateTime formattedendDate = DateTime(year, month, day);
-    DateTime currentDate = DateTime.now();
-
-    // Your conditions to determine the booking status
-    if (int.tryParse(maxNumberOfParticipants) == 0) {
-      return 'Fully Booked';
-    } else if (formattedendDate.isBefore(currentDate)) {
-      return 'Expired';
-    } else {
-      return 'Booked';
-    }
-  }
-
-  // this function to determine if the customer paid for the adventure
-  bool determinePaidStatus() {
-
-    // Parse the string into a DateTime object using a custom format
-    List<String> dateParts = endDate.split('/');
-    int year = int.parse(dateParts[0]);
-    int month = int.parse(dateParts[1]);
-    int day = int.parse(dateParts[2]);
-    DateTime formattedendDate = DateTime(year, month, day);
-    DateTime currentDate = DateTime.now();
-
-    // Your conditions to determine the paid status
-    if (int.tryParse(maxNumberOfParticipants) == 0 || formattedendDate.isBefore(currentDate)) {
-      return false; // Not paid if fully booked or expired
-    } else {
-      return true; // Paid if other conditions are met
-    }
   }
 
 // ---------------------- To Firebase ----------------------
@@ -1195,35 +1084,27 @@ class MyCustomFormState extends State<MyCustomForm> {
       _showNoInternetDialog();
       return;
     }
+
     setState(() {
       _isSubmitting = true;
+
     });
 
     try {
 
       // Generate a UUID
       final uuid = const Uuid().v4();
-      final checkAdventureID = adventureID;
-      if (kDebugMode) {
-        print("object:  $uuid" );
-      }
+      final AdventureID = adventureID;
+      print("object:  $uuid" );
+      User? user = FirebaseAuth.instance.currentUser;
+      String userID = "";
+      userID = user!.uid;
+      print('Current User ID -->: $userID');
 
-       User? user = FirebaseAuth.instance.currentUser;
-       String userID = "";
-       userID = user!.uid;
-       if (kDebugMode) {
-        print('Current User ID -->: $userID');
-       }
-
-
-      // Call _calculateTotalPrice to get the calculated TotalPrice
-      int totalPrice = _calculateTotalPrice();
-      if (kDebugMode) {
-        print('Current Total Price -->-------------------***');
-      }
-      if (kDebugMode) {
-        print(totalPrice);
-      }
+      // Call _calculatTotalPrice to get the calculated TotalPrice
+      int TotalPrice = _calculatTotalPrice();
+      print('Current Total Price -->-------------------***');
+      print(TotalPrice);
 
 
       // Increment the adventure count
@@ -1232,16 +1113,12 @@ class MyCustomFormState extends State<MyCustomForm> {
       await FirebaseFirestore.instance.collection('booked_adventure_count').doc('count').set({'count': count + 1});
 
 // -----------------Try updating the Max number of participants ----------------
-      if (kDebugMode) {
-        print('my adventure ID is');
-      }
-      if (kDebugMode) {
-        print(adventureID);
-      }
-    // Update the document with the specified adventureID
+      print('my adventure ID is');
+      print(AdventureID);
+      // Update the document with the specified adventureID
       final getAdv = await FirebaseFirestore.instance.collection('adventure')
-          .where("adventureID", isEqualTo: checkAdventureID)
-          .where("maxNumberOfParticipants", isEqualTo: maxNumberOfParticipants)
+          .where("adventureID", isEqualTo: AdventureID)
+          .where("MaxNumberOfParticipants", isEqualTo: maxNumberOfParticipants)
           .get();
 
 
@@ -1250,180 +1127,69 @@ class MyCustomFormState extends State<MyCustomForm> {
         final documentSnapshot = getAdv.docs.first;
         final data = documentSnapshot.data();
 
-        int currentMaxParticipants = int.tryParse(data['maxNumberOfParticipants'] ?? '0') ?? 0;
-        if (kDebugMode) {
-          print('my MaxNumberOfParticipants is');
-        }
-        if (kDebugMode) {
-          print(currentMaxParticipants);
-        }
+        int currentMaxParticipants = int.tryParse(data['MaxNumberOfParticipants'] ?? '0') ?? 0;
+        print('my MaxNumberOfParticipants is');
+        print(currentMaxParticipants);
 
         if (currentMaxParticipants > 0) {
           // after booking decrement one
           currentMaxParticipants--;
           // Update the MaxNumberOfParticipants
-          await documentSnapshot.reference.update({'maxNumberOfParticipants': currentMaxParticipants.toString()});
+          await documentSnapshot.reference.update({'MaxNumberOfParticipants': currentMaxParticipants.toString()});
 
-          if (kDebugMode) {
-            print('Participants After Decremented is');
-          }
-          if (kDebugMode) {
-            print(currentMaxParticipants);
-          }
+          print('Partic After Decremented is');
+          print(currentMaxParticipants);
 
         } else {
-          if (kDebugMode) {
-            print('MaxNumberOfParticipants is already at its minimum.');
-          }
+          print('MaxNumberOfParticipants is already at its minimum.');
         }
       } else {
-        if (kDebugMode) {
-          print('No adventure found with the given adventureID and MaxNumberOfParticipants.');
-        }
+        print('No adventure found with the given adventureID and MaxNumberOfParticipants.');
       }
 
+// ---------------------------------------------------------
       bool paid = false;
-      String bookingStatus = determinebookingStatus();
-    //  bool paidStatus = determinePaidStatus();
 
-      // Add the adventure data to Fire store with the UUID and count
+      // Add the adventure data to Firestore with the UUID and count
       final bookedAdventureData = {
 
         'adventureBookingDate': DateTime.now(),
-        'adventureID': adventureID,
-        'adventureBookingID': uuid,
-        'bookedAdventureNumber': "${count + 1}",
+        'bookingStatus' : 'Booked',
+        'adventureBookingID': uuid, // add the UUID to the map
+        'bookedAdventureNumber': count + 1,
         'userID': userID,
-        'NumberOfReservedAdventures': numOfReservedAdventure.toString(),
-        'paid' : paid,
-        'bookingStatus' : bookingStatus,
+        'Number of Reserved Adventures': numOfReservedAdven,
+        'Paid' : paid,
+
         'serviceProviderName': adventureProviderName,
-        'typeOfAdventure': typeOfAdventure,
+        'typeOfAdventure': typeOfAdventure ,
         'adventureDescription': adventureDescription,
-        'phoneNumber': phoneNumber,
+        'PhoneNumber':phoneNumber,
         'levelOfDifficulty' : difficultyLevel ,
+
         'startDate' : startDate,
         'endDate': endDate,
         'startTime':  startTime,
-        'endTime':endTime,
-        'isOnlyFamily': onlyFamilies,
+        'endTime': endTime,
+
+        'isOnlyFamily' : onlyFamilies,
         'adventureNature' :  adventureNature,
-        'gender' : gender ,
-        'age': age ,
-        "isEquipmentProvided" : equipmentProvided,
-        "isFreeAdventure" : freeAdventure,
-        'price' : totalPrice.toString(),
-        'maxNumberOfParticipants' :  maxNumberOfParticipants,
-        'googleMapsLink' : googleMapsLink,
-        'locationName' : locationName,
-        'imageUrls': images,
+        'Gender' : gender ,
+        'Age' : age ,
+
+        "IsFreeAdventure" : freeAdventure,
+        'Price' : TotalPrice.toString(),
+        'MaxNumberOfParticipants' : maxNumberOfParticipants,
+
+        'googleMapsLink ': googleMapsLink ,
+        'LocationName': locationName ,
 
       };
       await FirebaseFirestore.instance
           .collection('BookedAdventure')
           .add(bookedAdventureData);
-
-// ---- -----If The Adventure is booked then decrement it in Favorite Items---
-
-        String adventureIDToUpdateNumOfParticipants = adventureID;
-      try {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection("user-favorite-items")
-            .doc(userID)
-            .collection("favorite-items")
-            .where('adventureID', isEqualTo: adventureIDToUpdateNumOfParticipants)
-            .get();
-
-        for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-          await doc.reference.update({
-            "maxNumberOfParticipants": maxNumberOfParticipants,
-          });
-        }
-
-        if (kDebugMode) {
-          print('Successfully updated number of participants in favorite items.');
-        } else {
-          if (kDebugMode) {
-            print('No documents found matching the query.');
-          }
-          // Handle the case where no documents match the query
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error updating number of participants: $e');
-        }
-        // Handle the error as needed
-      }
-// --------------------------- Gamification Part ------------------------------
-
-
-/*
-      final  userAnalyticsAdventure = {
-        "Hiking": {
-          "adventureBookingDate":  DateTime.now(),
-          "adventureID": adventureID,
-          "adventureBookingID": uuid,
-          "userID": userID,
-          "numberOfTimesBooked": NumberOfReservedAdventures.toString(), // to increment everytime booked
-          "levelOfDifficulty": difficultyLevel,
-          "badgeName": "",
-          "earnedPoints": "",
-          "isUnlocked": "",
-          "memberType": ""
-        },
-        "Horse Riding": {
-          "adventureBookingDate":  DateTime.now(),
-          "adventureID": adventureID,
-          "adventureBookingID": uuid,
-          "userID": userID,
-          "numberOfTimesBooked": NumberOfReservedAdventures.toString(), // to increment everytime booked
-          "levelOfDifficulty": difficultyLevel,
-          "badgeName": "",
-          "earnedPoints": "",
-          "isUnlocked": "",
-          "memberType": ""
-        },
-        "Cycling": {
-          "adventureBookingDate":  DateTime.now(),
-          "adventureID": adventureID,
-          "adventureBookingID": uuid,
-          "userID": userID,
-          "numberOfTimesBooked": NumberOfReservedAdventures.toString(), // to increment everytime booked
-          "levelOfDifficulty": difficultyLevel,
-          "badgeName": "",
-          "earnedPoints": "",
-          "isUnlocked": "",
-          "memberType": ""
-        },
-        "Beach Adventure": {
-          "adventureBookingDate":  DateTime.now(),
-          "adventureID": adventureID,
-          "adventureBookingID": uuid,
-          "userID": userID,
-          "numberOfTimesBooked": numberOfTimesBooked.toString(), // to increment everytime booked
-          "levelOfDifficulty": difficultyLevel,
-          "badgeName": "",
-          "earnedPoints": "",
-          "isUnlocked": "",
-          "memberType": ""
-        }
-      };
-
-      FirebaseFirestore.instance.collection("user-Analytics-Adventure")
-          .doc(userID)
-          .collection("my-adventure")
-          .add(userAnalyticsAdventure );
-*/
-
-
-// ------------------------------------------------------------------
-
-      ScaffoldMessenger.of(context).showSnackBar(
-
-         const SnackBar(
-             content: Text('Your Adventure Booked Successfully'),
-           behavior: SnackBarBehavior.floating,
-         ));
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('Your Adventure Booked Successfully')));
 
       //Push the user to the payment screen
       Navigator.push( context, MaterialPageRoute(builder: (context) =>   CongratsScreen()),);
@@ -1432,9 +1198,7 @@ class MyCustomFormState extends State<MyCustomForm> {
         _isSubmitting = false;
       });
     } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
+      print(error);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(error.toString())));
       setState(() {
@@ -1442,8 +1206,7 @@ class MyCustomFormState extends State<MyCustomForm> {
       });
     }
   }
-
-  ///---------------------  No Internet Dialog ----------------------------
+///---------------------  No Internet Dialog ----------------------------
   void _showNoInternetDialog() {
     showDialog(
       context: context,
@@ -1463,93 +1226,11 @@ class MyCustomFormState extends State<MyCustomForm> {
       },
     );
   }
-
-
 /// ---------------------- End No Internet Dialog -------------------------
 
 }
 
-/// ------------------------------ Gamification Part -----------------------------------
-Future<Map<String, int>> countUserAdventureReservedAdventures(String userID, String adventureID) async {
-  // Reference to the Firestore collection
-  CollectionReference bookingsCollection = FirebaseFirestore.instance.collection('BookedAdventure');
 
-  // Query to get the documents for the specified user and adventure
-  QuerySnapshot querySnapshot = await bookingsCollection
-      .where('userID', isEqualTo: userID)
-      .where('adventureID', isEqualTo: adventureID)
-      .get();
-
-  // Initialize total number of reserved adventures and number of documents found
-  int totalReservedAdventures = 0;
-  int numberOfDocuments = querySnapshot.size;
-
-  // Loop through the documents to sum up the NumberOfReservedAdventures
-  querySnapshot.docs.forEach((doc) {
-    // Cast doc.data() to Map<String, dynamic>
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    // Check if NumberOfReservedAdventures exists and is not null
-    if (data.containsKey('NumberOfReservedAdventures')) {
-      // Use try-catch to handle non-integer values gracefully
-      try {
-        // Convert NumberOfReservedAdventures to int and add to totalReservedAdventures
-        int? reservedAdventures = int.tryParse(data['NumberOfReservedAdventures']);
-        if (reservedAdventures != null) {
-          totalReservedAdventures += reservedAdventures;
-        }
-      } catch (e) {
-        print('Error parsing NumberOfReservedAdventures: $e');
-        // Handle error - Maybe log it or skip this document
-      }
-    }
-  });
-
-  // Return a map containing the total number of reserved adventures and the number of documents found
-  return {
-    'totalReservedAdventures': totalReservedAdventures,
-    'numberOfDocuments': numberOfDocuments,
-  };
-}
-
-Future<Map<String, int>> countUserAdventureTypes(String userID) async {
-  // Reference to the Firestore collection
-  CollectionReference bookingsCollection = FirebaseFirestore.instance.collection('BookedAdventure');
-
-  // Query to get the documents for the specified user
-  QuerySnapshot querySnapshot = await bookingsCollection.where('userID', isEqualTo: userID).get();
-
-  // Initialize a map to store the counts for each adventure type
-  Map<String, int> adventureCounts = {
-    'Hiking': 0,
-    'Horse Riding': 0,
-    'Cycling': 0,
-    'Beach Adventure': 0,
-  };
-
-  // Loop through the documents to count the bookings for each adventure type
-  querySnapshot.docs.forEach((doc) {
-    // Cast doc.data() to Map<String, dynamic>
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    // Check if the 'typeOfAdventure' field exists and is not null
-    if (data.containsKey('typeOfAdventure')) {
-      String? adventureType = data['typeOfAdventure'];
-      if (adventureType != null && adventureCounts.containsKey(adventureType)) {
-        // Increment the count for the corresponding adventure type
-        adventureCounts[adventureType] = (adventureCounts[adventureType] ?? 0) + 1;
-      }
-    }
-  });
-
-  // Print the counts for each adventure type
-  adventureCounts.forEach((adventureType, count) {
-    print('User $userID has booked $count $adventureType adventures.');
-  });
-  // Return the map containing the counts for each adventure type
-  return adventureCounts;
-}
-// --------------------------Gamification Ends-------------------------------
 
 // share the Adventure with a friend
 void shareApp() async {

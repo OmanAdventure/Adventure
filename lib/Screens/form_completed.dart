@@ -1,90 +1,120 @@
+import 'dart:math';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
-import 'package:untitled/main.dart';
-import 'PhotoContainerScreen.dart';
 
-// Define a custom Form widget.
-class FormCompleted extends StatefulWidget {
-  const FormCompleted({Key? key}) : super(key: key);
+import '../main.dart';
 
-  @override
-  FormCompletedState createState() => FormCompletedState();
+void main() {
+  runApp(MyApp());
 }
 
-// Define a corresponding State class.
-// This class holds data related to the form.
-class FormCompletedState extends State<FormCompleted> {
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CongratsScreen(),
+    );
+  }
+}
+
+class CongratsScreen extends StatefulWidget {
+  @override
+  _CongratsScreenState createState() => _CongratsScreenState();
+}
+
+class _CongratsScreenState extends State<CongratsScreen> {
+  late ConfettiController _controller;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: const Duration(seconds: 2));
+    // Start the confetti animation
+    _controller.play();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
-    return Scaffold(
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final appBarColor = themeProvider.darkMode
+        ? themeProvider.darkTheme.primaryColor
+        : Color(0xFF700464);
+
+    return  Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.teal,
-        title: Text(
-          'Adventure Form',
-          style: GoogleFonts.satisfy(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontStyle: FontStyle.normal,
-            color: Colors.white,
-          ),
-        ),
+        title: const Text('Booking Completed' ,  style: TextStyle( fontWeight: FontWeight.bold, color: Colors.white)),
+        automaticallyImplyLeading: false, // Set this to false to hide the back button
+        backgroundColor: appBarColor,
       ),
       body: Center(
         child: Column(
-          children: <Widget>[
-             Padding(
-                 padding:EdgeInsets.fromLTRB(20, 200, 20, 3),
-
-             child: Align(
-               alignment: Alignment.center,
-               child: Text(
-                 textAlign: TextAlign.center,
-                 'We are so excited for your adventure!\n\n'
-                     'You adventure is waiting for you.\n '
-                     'Please check your email',
-                 style: GoogleFonts.timmana(
-                   fontSize: 25,
-                   fontWeight: FontWeight.bold,
-                   fontStyle: FontStyle.normal,
-                    color: Colors.black,
-                 ),
-                 /// To include a hiking or riding Gif or annimation
-               ),
-             )
-
-
-             ),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            const Text('Congratulation!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+          const AlertDialog(
+          elevation: 10,
+         // title: Text('Congratulation', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+          content: Text( 'We are so excited for you!\n\n'
+              'Please check your email' , style: TextStyle(fontWeight: FontWeight.normal, fontSize: 20)),
+           title:   Icon(
+              Icons.rocket_launch,
+              color: Colors.grey,
+              size: 35,
+            ),
+          ),
+            ConfettiWidget(
+              confettiController: _controller,
+              blastDirection: -pi / 2, // straight up
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              maxBlastForce: 100,
+              minBlastForce: 80,
+              gravity: 0.1,
+            ),
+              const Spacer(),
 
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 50, 20, 30),
+              padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
               child: ElevatedButton(
                 style: ButtonStyle(
                     textStyle: MaterialStateProperty.all<TextStyle>(
-                        TextStyle(
+                        const TextStyle(
                             fontSize: 22, fontWeight: FontWeight.normal)),
                     minimumSize:
                     MaterialStateProperty.all<Size>(Size(400, 50)),
                     backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.teal)),
+                    MaterialStateProperty.all<Color>(Colors.green.shade400)),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => adventuresfunc()),
+                    MaterialPageRoute(builder: (context) => adventuresfunc(currentIndex: 0)),
                   );
                 },
-                    child: const Text('Back to Activity Dashboard'),
+                child: const Text('Back to Adventures' ,  style: TextStyle( color: Colors.white) ),
               ),
             ),
 
           ],
         ),
       ),
+      bottomNavigationBar: null, // Hide the bottom navigation bar
+
     );
+
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
-

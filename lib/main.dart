@@ -19,6 +19,18 @@ import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'package:untitled/l10n/messages_all.dart';
+import 'package:untitled/l10n/messages_all_locales.dart';
+import 'package:untitled/l10n/messages_en.dart'; // For English
+import 'package:untitled/l10n/messages_ar.dart'; // For Arabic
+
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:untitled/l10n/localization.dart'; // Import your localization file
+
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -52,14 +64,14 @@ class UserProvider with ChangeNotifier {
         password: password,
       );
 
-      final userId = userCredential.user!.uid;
+      final userID = userCredential.user!.uid;
       final DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-      await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      await FirebaseFirestore.instance.collection('users').doc(userID).get();
       final userData = userSnapshot.data();
       // Implement further logic with the retrieved user data
       print('Logged in successfully!');
       // navigate to Home screen
-      print('User ID: $userId');
+      print('User ID: $userID');
       print('User Data: $userData');
     } catch (error) {
       print('Login failed: $error');
@@ -69,7 +81,6 @@ class UserProvider with ChangeNotifier {
 
   // Example: Current user data
   UserModel? _user;
-
   UserModel? get user => _user;
 
   void updateUser(UserModel newUser) {
@@ -77,15 +88,158 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-// Add more user-related methods and state as needed
+}  // UserProvider
+
+class ThemeProvider extends ChangeNotifier {
+  bool _darkMode = false;
+  bool get darkMode => _darkMode;
+  Color darkModeColor =  const Color(0xFF5A5A5A);
+
+
+  void toggleTheme() {
+    _darkMode = !_darkMode;
+    notifyListeners();
+  }
+
+  ThemeData get themeData {
+    // Return the appropriate ThemeData based on _darkMode
+    return _darkMode ? darkTheme : lightTheme;
+  }
+
+
+  // Define your light and dark themes as needed
+  ThemeData get lightTheme {
+    // Define your light theme here
+    return ThemeData(
+      primaryColor: Colors.teal,
+      appBarTheme: AppBarTheme(
+        toolbarTextStyle: const TextTheme(
+          titleLarge: TextStyle(color: Colors.white), // Set the text color for dark theme
+        ).bodyMedium, titleTextStyle: const TextTheme(
+          titleLarge: TextStyle(color: Colors.white), // Set the text color for dark theme
+        ).titleLarge,
+        // Other app bar theme configurations...
+      ),
+      // Other light theme configurations...
+    );
+  }
+
+  ThemeData get darkTheme {
+    // Define your dark theme here
+    return ThemeData(
+      primaryColor: darkModeColor,
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(color: Colors.white), // Set the text color for dark theme
+      ),
+      // Other dark theme configurations...
+    );
+  }
 }
+
 
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
+
+  // Add the following method
+  static _MyAppState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MyAppState>();
+  }
+
+  static void changeLanguage(BuildContext context, Locale locale) {
+    _MyAppState? myAppState =
+    context.findAncestorStateOfType<_MyAppState>();
+    myAppState?.setLocale(locale);
+  }
 }
 
+String currentuser = "";
+
 class _MyAppState extends State<MyApp> {
+
+
+  // the visibility of the BottomNavigationBarVisible
+
+
+
+// ---------- Languages
+
+  Locale? _locale;
+
+  void setLocale(Locale newLocale) {
+    setState(() {
+      _locale = newLocale;
+    });
+  }
+
+  static void changeLanguage(BuildContext context, Locale locale) {
+    _MyAppState? myAppState =
+    context.findAncestorStateOfType<_MyAppState>();
+    myAppState?.setLocale(locale);
+  }
+  // ---------- Language
+
+  late Future<UserModel> _userDataFuture;
+  late UserModel _user;
+
+  @override
+  void initState() {
+    super.initState();
+
+
+
+
+    _locale = const Locale('en');
+    _user = UserModel(
+      userName: "",
+      id: "",
+      email: "",
+      phoneNumber: "",
+      gender: "",
+    );
+
+   _userDataFuture = _getUserData();
+    print("+++++++++++++");
+    print(_user.userName);
+    print(_user.id);
+    print(_user.email);
+    print(_user.gender);
+
+   setState(() {
+     print("&&&&&&&&&&&&&&&&&");
+         print(_user.userName);
+         print(_user.id);
+         print(_user.email);
+         print(_user.gender);
+
+//     currentuser = _user as String;
+        print("This is the current user that you are looking for $currentuser");
+     });
+  }
+
+  Future<UserModel> _getUserData() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+
+       currentuser = user as String ;
+
+      if (user != null) {
+        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
+
+        return UserModel(
+          userName: userSnapshot.data()?["UserName"] ?? "",
+          id: user.uid,
+          email: user.email ?? "",
+          phoneNumber: userSnapshot.data()?["Phone Number"] ?? "",
+          gender: userSnapshot.data()?["User Gender"] ?? "",
+        );
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+    return _user;
+  }
 
   /// Step 5
 
@@ -111,7 +265,7 @@ class _MyAppState extends State<MyApp> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -128,8 +282,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      /*
       theme: ThemeData(
         indicatorColor: Colors.red,
         highlightColor: Colors.red,
@@ -140,7 +297,29 @@ class _MyAppState extends State<MyApp> {
           secondary: Colors.black,
         ),
       ),
-      home: const SplashScreen(),
+      */
+
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'), // English
+        const Locale('ar'), // Arabic
+      ],
+      locale: _locale,
+
+      builder: (context, child) {
+        // Dynamically build the theme based on ThemeProvider
+        return Theme(
+          data: Provider.of<ThemeProvider>(context).themeData,
+          child: child!,
+        );
+      },
+
+      home: const SplashScreen(  ),
       routes: <String, WidgetBuilder>{
 
         // to route the notification
@@ -149,15 +328,18 @@ class _MyAppState extends State<MyApp> {
         SIGNUP_SCREEN: (BuildContext context) => SignUp(),
         HOME_SCREEN: (BuildContext context) => const HomeScreen(),
         ANIMATED_SPLASH: (BuildContext context) => const SplashScreen(),
-        ACTIVITY_CONTAINER_SCREEN: (BuildContext context) => const adventuresfunc(),
+        ACTIVITY_CONTAINER_SCREEN: (BuildContext context) =>     adventuresfunc(currentIndex: 0),
         ADVENTURES_CONTAINER_SCREEN: (BuildContext context) => const AdventuresContainerScreen(name: ''),
         ACCOMMODATION_CONTAINER_SCREEN: (BuildContext context) => Accommodation(),
         Notifications_CONTAINER_SCREEN: (BuildContext context) => const Notifications(),
-        SETTING_CONTAINER_SCREEN: (BuildContext context) => const settingsState(),
+        SETTING_CONTAINER_SCREEN: (BuildContext context) => const SettingsState(),
 
       },
     );
   }
+
+
+
 }
 
 // TODO: Add stream controller
@@ -262,8 +444,12 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        // Add other providers if needed
+      ],
       child: MyApp(),
     ),
   );

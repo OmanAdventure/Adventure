@@ -1,67 +1,104 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/main.dart';
 import 'SettingsScreen.dart';
 import 'PhotoContainerScreen.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'VideoContainerScreen.dart';
-import 'Accommodation.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'Notifications.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+  static const int invisibleIndex = -1;
+
+
   @override
-  HomeScreenState createState() =>  HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
+
+  static HomeScreenState? findHomeScreenState(BuildContext context) {
+    return context.findAncestorStateOfType<HomeScreenState>();
+  }
+
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  int currentIndex = 0;
-  final List<Widget> viewContainer = [
-    const Center(
-        child: adventuresfunc()),
 
- //   Accommodation(),
-    const Notifications(),
-    Settings()
+  int currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    if (currentuser.isNotEmpty) {
+      setState(() {
+        currentIndex = 0;
+      });
+      print(currentuser);
+    }
+  }
+
+  final List<Widget> viewContainer = [
+      Center(child: adventuresfunc(currentIndex: 0)),
+      const Notifications(),
+      Settings()
   ];
 
   @override
   Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.darkMode;
+    const darkModeColor = Color(0xFF5A5A5A);
+
+    const categoryIconOutlined = Icon(Icons.category_outlined);
+    const notificationsIconOutlined = Icon(Icons.notifications_outlined);
+    const settingsIconOutlined = Icon(Icons.settings_outlined);
+
+    const categoryIcon = Icon(Icons.category);
+    const notificationsIcon = Icon(Icons.notifications);
+    const settingsIcon = Icon(Icons.settings);
+
     void onTabTapped(int index) {
       setState(() {
         currentIndex = index;
       });
     }
 
-    return  Scaffold(
+
+    return Scaffold(
+      backgroundColor: Colors.white,
       body: viewContainer[currentIndex],
-      bottomNavigationBar:   BottomNavigationBar(
-          onTap: onTabTapped, // new
-          currentIndex: currentIndex,
-         // fixedColor: Colors.teal,
-          selectedItemColor: Colors.teal,
-          unselectedItemColor: Colors.teal,
-          items: const [
-            BottomNavigationBarItem(
-              icon:    Icon(Icons.category),
-              label:  "Adventures",
+      bottomNavigationBar: Visibility(
+         visible: true,
+        // Set visibility based on currentIndex
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+          child: BottomNavigationBar(
+            backgroundColor: isDarkMode ? darkModeColor : Color(0xFF700464),
+            onTap: onTabTapped,
+            currentIndex: currentIndex,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white.withOpacity(0.7),
+            items: [
+              BottomNavigationBarItem(
+                icon: currentIndex == 0 ? categoryIcon : categoryIconOutlined,
+                label: "Adventures",
+              ),
+              BottomNavigationBarItem(
+                icon: currentIndex == 1 ? notificationsIcon : notificationsIconOutlined,
+                label: "Notifications",
+              ),
+              BottomNavigationBarItem(
+                icon: currentIndex == 2 ? settingsIcon : settingsIconOutlined,
+                label: "Settings",
+              ),
+            ],
+            selectedIconTheme: const IconThemeData(
+              color: Colors.white,
             ),
-         //   BottomNavigationBarItem(icon:  Icon(Icons.hotel), label: "Accommodations",),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_on),
-              label: "Notifications",
+            unselectedIconTheme: const IconThemeData(
+              color: Colors.white,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Settings",
-            )
-            // Color for the unselected items
-          ]
-      )
+          ),
+        ),
+      ),
     );
-    // TODO: implement build
   }
 }
-
-
