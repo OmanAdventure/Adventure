@@ -4,10 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/Constant/Constant.dart';
+import 'package:untitled/NewScreensUI/AdventureDetailsUI.dart';
+import 'package:untitled/NewScreensUI/CommunityActivitiesUI.dart';
+import 'package:untitled/NewScreensUI/FilterAdventureUI.dart';
+import 'package:untitled/NewScreensUI/ForgetPasswordUI.dart';
+import 'package:untitled/NewScreensUI/HomeScreenUI.dart';
+import 'package:untitled/NewScreensUI/LoginScreenUI.dart';
+import 'package:untitled/NewScreensUI/ReviewConfirmUI.dart';
+import 'package:untitled/NewScreensUI/SettingsScreenUI.dart';
+import 'package:untitled/NewScreensUI/SuccessfulBookingUI.dart';
+import 'package:untitled/NewScreensUI/Terms&ConditionsUI.dart';
 import 'package:untitled/Screens/MyAchievement.dart';
 import 'package:untitled/Screens/MyBookedAdventures.dart';
-import 'package:untitled/Screens/NewUIScreens.dart';
+import 'package:untitled/NewScreensUI/NewUIScreens.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
+import 'package:untitled/NewScreensUI/SelectAdventureUI.dart';
+import 'package:untitled/NewScreensUI/SignUpScreenUI.dart';
+import 'package:untitled/NewScreensUI/countryLanguage.dart';
 import 'package:untitled/Screens/signup.dart';
 import 'package:untitled/Screens/userProfile.dart';
 import 'package:untitled/l10n/localization.dart';
@@ -39,7 +52,7 @@ class Settings extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final appBarColor = themeProvider.darkMode
         ? themeProvider.darkTheme.primaryColor
-        : Color(0xFF700464);
+        : const Color(0xFF700464);
 
     return   MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -418,13 +431,13 @@ class _MySettingsState extends  State<SettingsState> {
             ///-----------------------------------------
             _buildButton(
               context,
-              text: 'Feedback Screen',
+              text: 'SP Feedback Screen',
               icon: Icons.adb_rounded,
               onTap: () {
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  RatingScreen()),
+                  MaterialPageRoute(builder: (context) =>  const RatingScreen()),
                 );
 
               },
@@ -433,15 +446,205 @@ class _MySettingsState extends  State<SettingsState> {
 
             _buildButton(
               context,
-              text: 'SignInScreen',
+              text: 'Country and Language Screen ',
               icon: Icons.adb_rounded,
               onTap: () {
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  RatingScreen()),
+                  MaterialPageRoute(builder: (context) =>  const LanguageAndCountrySelector()),
                 );
 
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Login Screen UI ',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  const LoginScreen()),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Sign-Up Screen UI ',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SignUpScreen()),
+                );
+
+              },
+            ),
+
+            _buildButton(
+              context,
+              text: 'Home Screen ',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  AdventureScreen()),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Select Adventure',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  const AdventureDetails()),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Filter Adventure',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  FilterScreen()),
+                );
+
+              },
+            ),
+
+
+            // AdventureBookingScreen
+            _buildButton(
+              context,
+              text: 'AdventureBookingScreen',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  const AdventureBookingScreen(
+                    serviceProviderName: "Service Provider Name",
+                    description: "Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description",
+                    startDate: "2024/02/02",
+                    startTime: "14:00",
+                    endDate: "2024/02/02",
+                    endTime: "18:00",
+                    totalParticipants: 20,
+                    pricePerPerson: 10,
+
+                  )),
+                );
+
+              },
+            ),
+
+
+
+            _buildButton(
+              context,
+              text: 'Review & Confirm',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReviewAndConfirmScreen(
+                    serviceProviderName: "Service Provider Name",
+                    date: "Friday, December 22, 2024",
+                    time: "03:00 PM - 06:00 PM",
+                    location: "Adventure Box Store",
+                    price: 15,
+                    tickets: 4,
+                    tax: 0,
+                   ),
+                  ),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Successful Booking ',
+              icon: Icons.adb_rounded,
+              onTap: () {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SuccessfulBookingScreen()),
+                );
+
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Terms & Conditions',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  TermsAndConditionsApp()),
+                );
+              },
+            ),
+
+            _buildButton(
+              context,
+              text: 'Community Activities ',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  CommunityActivitiesApp()),
+                );
+              },
+            ),
+
+            _buildButton(
+              context,
+              text: 'Settings Screen',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SettingsScreen()),
+                );
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Forget Password Screen',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  ForgetPasswordScreen()),
+                );
               },
             ),
 
@@ -549,8 +752,6 @@ class _MySettingsState extends  State<SettingsState> {
     const String message = 'Check out my new app: $appLink';
     await Share.share(message, subject: 'Share App');
   }
-
-
 
   Future<void> _showLanguageDialog(BuildContext context) async {
     Locale currentLocale = Localizations.localeOf(context);

@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 /// Firebase Packages
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:untitled/components/buttonsUI.dart';
 
 
 
@@ -11,7 +13,9 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(const MyApp(
+
+  ));
 }
 
 //void main() => runApp(MyApp());
@@ -41,17 +45,17 @@ class  RatingScreenState extends State<RatingScreen> {
   String getRatingText() {
     switch (_rating) {
       case 1:
-        return 'Bad';
+        return 'Poor Service';        // Consistent negative descriptor
       case 2:
-        return 'Ok';
+        return 'Fair Service';        // Consistent moderate negative descriptor
       case 3:
-        return 'Average';
+        return 'Good Service';        // Neutral positive descriptor
       case 4:
-        return 'Very Good';
+        return 'Very Good Service';   // Consistent positive descriptor
       case 5:
-        return 'Excellent Service';
+        return 'Excellent Service';   // Highest positive descriptor
       default:
-        return '';
+        return 'No Rating';           // Default case when no rating is provided
     }
   }
 
@@ -165,14 +169,15 @@ class  RatingScreenState extends State<RatingScreen> {
                     ),
               ),
 
-              Padding(
+            Padding(
               padding: const EdgeInsets.only(left: 30),
-              child:  Align(
+              child: Align(
                 alignment: Alignment.bottomLeft,
-                child:  Wrap(
+                child: Wrap(
                   spacing: 5,
                   children: ['Friendly', 'Timeliness', 'Professionalism', 'Organized']
                       .map((review) => ChoiceChip(
+                    checkmarkColor: Colors.white,
                     label: Text(review),
                     selected: _selectedReviews.contains(review),
                     onSelected: (bool selected) {
@@ -187,8 +192,8 @@ class  RatingScreenState extends State<RatingScreen> {
                         }
                       });
                     },
-                    selectedColor: Colors.blueAccent,
-                    labelStyle: const TextStyle(color: Colors.black),
+                    selectedColor: Colors.blue[900],
+                    labelStyle: TextStyle(color: _selectedReviews.contains(review) ? Colors.white : Colors.black),
                     backgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20), // This controls the roundness of the edges
@@ -198,6 +203,7 @@ class  RatingScreenState extends State<RatingScreen> {
                 ),
               ),
             ),
+
 
 
             const Padding(
@@ -306,30 +312,12 @@ class  RatingScreenState extends State<RatingScreen> {
                   ],
                 ),
               ),
-
             ),
 
-
-
-
-
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-              child: SizedBox(
-                height: 50,
-                width: double.infinity,  // Sets the button width to take the full available width
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[900],
-                    //padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 20),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: const Text('Submit', style: TextStyle(color: Colors.white)),
-                ),
-              ),
+            CustomButton (onPressed: () {
+              showCustomDialog(context);
+              }, buttonText: "Submit",
             )
-
 
           ],
         ),
@@ -338,3 +326,51 @@ class  RatingScreenState extends State<RatingScreen> {
   }
 }
 
+void showCustomDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        content: SizedBox(
+          width: double.infinity,
+          height: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+                Icon(Icons.check_circle_outline, size: 100, color: Colors.blue[900],),
+              const SizedBox(height: 20),
+              const Text('Thanks for Rating the Service Provider',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 150),
+              SizedBox(
+                height: 50,
+                width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[900],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text('Back to Notification', style: TextStyle(color: Colors.white) ),
+              ),
+
+
+
+              )
+
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}

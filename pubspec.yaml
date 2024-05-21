@@ -105,7 +105,7 @@ dependencies:
   badges: ^3.1.2
   flutter_svg: ^2.0.9
   connectivity_plus: ^5.0.2
-
+  flutter_rating_bar: ^4.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -158,6 +158,10 @@ flutter:
     - assets/images/profileImage.png
     - assets/images/horseback.jpg
     - assets/images/awardBadge.png
+    - assets/images/visa.png
+    - assets/images/mastercard.png
+    - assets/images/paypal.png
+
 
 #    - assets/tessdata_config.json
 
