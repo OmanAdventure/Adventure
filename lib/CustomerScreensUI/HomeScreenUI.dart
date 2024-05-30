@@ -130,7 +130,7 @@ class _AdventureScreenState extends State<AdventureScreen> {
                 )
              ),
             ),
-        Padding(
+                   Padding(
          padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
          child: Container(
           decoration: BoxDecoration(
@@ -139,7 +139,7 @@ class _AdventureScreenState extends State<AdventureScreen> {
           ),
           height: 250,
           width: double.infinity,
-          child: Stack(
+          child: Stack (
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(20), // Rounded edges for the image
@@ -169,7 +169,7 @@ class _AdventureScreenState extends State<AdventureScreen> {
           ),
         ),
       ),
-      ],
+          ],
         ),
       ),
 

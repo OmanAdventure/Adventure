@@ -33,6 +33,12 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(' ', style: TextStyle(color: Colors.black)),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -109,44 +115,49 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
             ),
 
 
-              const SizedBox(height: 200),
+              const SizedBox(height: 40),
 
               // Don’t have an account?
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                    GestureDetector(
-                      onTap: () { print("Sign In");}, // Navigate to sign up
-                      child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text('Already have an account?', style: TextStyle(color: Colors.grey)),
-                              const SizedBox(width: 30,),
-                              Text('Sign In', style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold)),
-                            ],
-                          )
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5.0),
+                child: Column(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                  //crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                      GestureDetector(
+                        onTap: () { print("Sign In");}, // Navigate to sign up
+                        child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('Already have an account?', style: TextStyle(color: Colors.grey)),
+                                const SizedBox(width: 30,),
+                                Text('Sign In', style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold)),
+                              ],
+                            )
+                        ),
                       ),
+
+                    const SizedBox(height: 30,),
+                    /*
+                    GestureDetector(
+                      onTap: () { print("Sign up");},
+
+                     child:  Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Don’t have an account?', style: TextStyle(color: Colors.grey)),
+                            const SizedBox(width: 30,),
+                            Text('Sign up', style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold)),
+                          ],
+                        )
+
                     ),
-
-                  const SizedBox(height: 30,),
-                  GestureDetector(
-                    onTap: () { print("Sign up");},
-
-                   child:  Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Don’t have an account?', style: TextStyle(color: Colors.grey)),
-                          const SizedBox(width: 30,),
-                          Text('Sign up', style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold)),
-                        ],
-                      )
-
-                  ),
-                  )
-                ],
+                    )
+                    */
+                  ],
+                ),
               ),
 
 

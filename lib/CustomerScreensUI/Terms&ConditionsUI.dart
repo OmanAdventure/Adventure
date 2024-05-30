@@ -9,40 +9,7 @@ class TermsAndConditionsApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TermsAndConditionsScreen(
-        title: 'Terms & Conditions',
-        updateDate: 'Update 1/8/2022',
-        sections: [
-          Section(
-            title: '1. Introduction',
-            content: 'Ad veniam reprehenderit exercitation aute deserunt minim veniam. Voluptate irure nisi consequat do ad aliquip nisi enim laborum aliqua. Magna reprehenderit.',
-          ),
-          Section(
-            title: '2. Who can use this app?',
-            content: 'Ut  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit excepteur nisi r   nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'excepteur nisi r  nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
-                'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
-                'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
-                'Nostrud dolore et magna tempor co.',
-          ),
-          // Add more sections as needed
-        ],
-      ),
+      home: TermsAndConditionsScreen(),
     );
   }
 }
@@ -55,12 +22,6 @@ class Section {
 }
 
 class TermsAndConditionsScreen extends StatefulWidget {
-  final String title;
-  final String updateDate;
-  final List<Section> sections;
-
-  TermsAndConditionsScreen({required this.title, required this.updateDate, required this.sections});
-
   @override
   _TermsAndConditionsScreenState createState() => _TermsAndConditionsScreenState();
 }
@@ -71,7 +32,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
   void _showDeclineAlert() {
     showDialog(
       context: context,
-      barrierDismissible : false,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -104,6 +65,46 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
     );
   }
 
+  final List<Section> sections = [
+    Section(
+      title: '1. Introduction',
+      content: 'Ad veniam reprehenderit exercitation aute deserunt minim veniam. Voluptate irure nisi consequat do ad aliquip nisi enim laborum aliqua. Magna reprehenderit.',
+    ),
+    Section(
+      title: '2. Who can use this app?',
+      content: 'Ut nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt sit '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'excepteur nisi r nostrud cupidatat elit est eiusmod voluptate dolore nisi. Eiusmod deserunt '
+          'sit excepteur nisi reprehenderit dolor labore magna pariatur nisi. Eilt deserunt cupidatat anim '
+          'consequat reprehenderit voluptate. Labore labore non consequat ut voluptate reprehenderit est. '
+          'Nostrud dolore et magna tempor co.',
+    ),
+    // Add more sections as needed
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,14 +114,14 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        title: Text(widget.title, style: TextStyle(color: Colors.black)),
+        title: Text('Terms & Conditions', style: TextStyle(color: Colors.black)),
       ),
       body: Column(
         children: [
-
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -140,14 +141,14 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                            Text(widget.updateDate, style: TextStyle(color: Colors.grey)),
+                            Text('Terms & Conditions', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            Text('Update 1/8/2022', style: TextStyle(color: Colors.grey)),
                           ],
                         ),
                       ],
                     ),
                     Divider(height: 20, thickness: 1),
-                    for (var section in widget.sections)
+                    for (var section in sections)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -157,13 +158,11 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
                           SizedBox(height: 20),
                         ],
                       ),
-
                     Divider(height: 20, thickness: 1),
-
                     Row(
                       children: [
                         Checkbox(
-                           activeColor: Colors.blue[900],
+                          activeColor: Colors.blue[900],
                           value: _agreedToTerms,
                           onChanged: (bool? value) {
                             setState(() {

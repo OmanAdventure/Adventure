@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:untitled/NewScreensUI/CancelSelectedAdventureUI.dart';
-import 'CancelSelectedAdventureUI.dart';
+import 'package:untitled/components/CustomAlertUI.dart';
+
+import 'EditAdventureFormDetails.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,19 +20,19 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const BookedAdventuresScreen(),
+      home: const MySubmittedAdventuresScreen(),
     );
   }
 }
 
-class BookedAdventuresScreen extends StatefulWidget {
-  const BookedAdventuresScreen({super.key, });
+class MySubmittedAdventuresScreen extends StatefulWidget {
+  const MySubmittedAdventuresScreen({super.key, });
 
   @override
-  _BookedAdventuresScreenState createState() => _BookedAdventuresScreenState();
+  _MySubmittedAdventuresState createState() => _MySubmittedAdventuresState();
 }
 
-class _BookedAdventuresScreenState extends State<BookedAdventuresScreen> {
+class _MySubmittedAdventuresState extends State<MySubmittedAdventuresScreen> {
   List<Adventure> adventures = [
     Adventure("Service Provider 1", "Challenging", "Only Females", "2024/05/05", 100, 5.0, 42),
     Adventure("Adventure Box Cycling", "Challenging", "Only Males", "2024/05/05", 100, 5.0, 42),
@@ -44,7 +44,7 @@ class _BookedAdventuresScreenState extends State<BookedAdventuresScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:AppBar(
-         title: const Text('My Booked Adventures', style: TextStyle(color: Colors.black)),
+        title: const Text('My Booked Adventures', style: TextStyle(color: Colors.black)),
       ),
       backgroundColor: const Color(0xFFeaeaea),
       body: ListView.builder(
@@ -80,23 +80,10 @@ class _BookedAdventuresScreenState extends State<BookedAdventuresScreen> {
                           adventures[index].provider,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           //overflow: TextOverflow.ellipsis,
-                         // softWrap: false, // Ensures that the text does not wrap and uses ellipsis instead
+                          // softWrap: false, // Ensures that the text does not wrap and uses ellipsis instead
                         ),
                       ),
-                      // Reviews
-                      Column(
-                        children: [
-                          Text("${adventures[index].rating.toStringAsFixed(1)} (${adventures[index].reviews} reviews)",
-                              style: const TextStyle(color: Colors.black54)),
-                          RatingBarIndicator(
-                            rating: adventures[index].rating,
-                            itemBuilder: (context, index) =>   Icon(Icons.star, color: Colors.blue[900]),
-                            itemCount: 5,
-                            itemSize: 24.0,
-                            direction: Axis.horizontal,
-                          ),
-                        ],
-                      )
+
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -125,13 +112,12 @@ class _BookedAdventuresScreenState extends State<BookedAdventuresScreen> {
                       ),
                       IconButton(onPressed: () {
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>  const ManageBookingScreen(
-                          )),
-                        );
+                        _showConfirmationDialog(context);
+
+
+                      //  Navigator.push( context,  MaterialPageRoute(builder: (context) =>  const ManageBookingScreen(  )), );
                       },
-                          icon: Icon(Icons.edit, color: Colors.red[600]),)
+                        icon: Icon(Icons.edit, color: Colors.red[600]),)
                     ],
                   )
                 ],
@@ -142,6 +128,62 @@ class _BookedAdventuresScreenState extends State<BookedAdventuresScreen> {
       ),
     );
   }
+
+
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Confirmation'),
+            ],
+          ),
+          content: const Text('You would like to edit this adventure details?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+
+                // Add your action for the Yes button here
+
+                Navigator.push( context,  MaterialPageRoute(builder: (context) =>  const EditAdventureFormScreen(  )), );
+
+
+
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[900],
+              ),
+              child: const Text('Yes',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 }
 
 class Adventure {

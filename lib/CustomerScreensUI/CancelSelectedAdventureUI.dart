@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:untitled/NewScreensUI/ManageMyAdventuresUI.dart';
+import 'package:untitled/CustomerScreensUI/ManageMyAdventuresUI.dart';
 import 'package:untitled/components/CustomAlertUI.dart';
 import 'package:untitled/components/buttonsUI.dart';
 

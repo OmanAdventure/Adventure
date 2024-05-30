@@ -4,27 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/Constant/Constant.dart';
-import 'package:untitled/NewScreensUI/AdventureDetailsUI.dart';
-import 'package:untitled/NewScreensUI/CommunityActivitiesUI.dart';
-import 'package:untitled/NewScreensUI/FilterAdventureUI.dart';
-import 'package:untitled/NewScreensUI/ForgetPasswordUI.dart';
-import 'package:untitled/NewScreensUI/HomeScreenUI.dart';
-import 'package:untitled/NewScreensUI/LoginScreenUI.dart';
-import 'package:untitled/NewScreensUI/ReviewConfirmUI.dart';
-import 'package:untitled/NewScreensUI/SettingsScreenUI.dart';
-import 'package:untitled/NewScreensUI/SuccessfulBookingUI.dart';
-import 'package:untitled/NewScreensUI/Terms&ConditionsUI.dart';
+import 'package:untitled/CustomerScreensUI/AdventureDetailsUI.dart';
+import 'package:untitled/CustomerScreensUI/CommunityActivitiesUI.dart';
+import 'package:untitled/CustomerScreensUI/FilterAdventureUI.dart';
+import 'package:untitled/CustomerScreensUI/ForgetPasswordUI.dart';
+import 'package:untitled/CustomerScreensUI/HomeScreenUI.dart';
+import 'package:untitled/CustomerScreensUI/LoginScreenUI.dart';
+import 'package:untitled/CustomerScreensUI/NotificationDetailsUI.dart';
+import 'package:untitled/CustomerScreensUI/NotificationUI.dart';
+import 'package:untitled/CustomerScreensUI/ReviewConfirmUI.dart';
+import 'package:untitled/CustomerScreensUI/SettingsScreenUI.dart';
+import 'package:untitled/CustomerScreensUI/SuccessfulBookingUI.dart';
+import 'package:untitled/CustomerScreensUI/Terms&ConditionsUI.dart';
+import 'package:untitled/CustomerScreensUI/TurnOnNotificationUI.dart';
 import 'package:untitled/Screens/MyAchievement.dart';
 import 'package:untitled/Screens/MyBookedAdventures.dart';
-import 'package:untitled/NewScreensUI/NewUIScreens.dart';
+import 'package:untitled/CustomerScreensUI/RateServiceProviderUI.dart';
 import 'package:untitled/Screens/PhotoContainerScreen.dart';
-import 'package:untitled/NewScreensUI/SelectAdventureUI.dart';
-import 'package:untitled/NewScreensUI/SignUpScreenUI.dart';
-import 'package:untitled/NewScreensUI/countryLanguage.dart';
+import 'package:untitled/CustomerScreensUI/SelectAdventureUI.dart';
+import 'package:untitled/CustomerScreensUI/SignUpScreenUI.dart';
+import 'package:untitled/CustomerScreensUI/countryLanguage.dart';
 import 'package:untitled/Screens/signup.dart';
 import 'package:untitled/Screens/userProfile.dart';
 import 'package:untitled/l10n/localization.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../AdminScreenUI/AdminDashboardUI.dart';
+import '../ServiceProviderScreens/ServiceProviderDashboardUI.dart';
 import '../main.dart';
 import 'serviceProviderForm.dart';
 import 'SettingsScreen.dart';
@@ -606,7 +611,9 @@ class _MySettingsState extends  State<SettingsState> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  TermsAndConditionsApp()),
+                  MaterialPageRoute(
+                    builder: (context) => TermsAndConditionsScreen(),
+                  ),
                 );
               },
             ),
@@ -618,7 +625,7 @@ class _MySettingsState extends  State<SettingsState> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  CommunityActivitiesApp()),
+                  MaterialPageRoute(builder: (context) =>  CommunityActivitiesScreen( )),
                 );
               },
             ),
@@ -648,7 +655,82 @@ class _MySettingsState extends  State<SettingsState> {
               },
             ),
 
+
+            _buildButton(
+              context,
+              text: 'Notification',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  NotificationApp()),
+                );
+              },
+            ),
+
+            _buildButton(
+              context,
+              text: 'Turn On Notification',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  NotificationPromptScreen()),
+                );
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Notification Details',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  NotificationDetailsScreen(
+                    serviceProviderName: "Service Provider Name",
+                    description: "Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description Adventure Description",
+                    startDate: "2024/02/02",
+                    startTime: "14:00",
+                    endDate: "2024/02/02",
+                    endTime: "18:00",
+                    totalParticipants: 20,
+                    pricePerPerson: 10,
+
+                  )),
+                );
+              },
+            ),
             //// ---------------------------------
+
+
+            _buildButton(
+              context,
+              text: 'Service Provider Screens',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SPDashboardScreen()),
+                );
+              },
+            ),
+
+
+            _buildButton(
+              context,
+              text: 'Admin Screens',
+              icon: Icons.adb_rounded,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  SuperAdminDashboardScreen()),
+                );
+              },
+            ),
+
+            /// ----------------------------
           ],
         ),
       ),

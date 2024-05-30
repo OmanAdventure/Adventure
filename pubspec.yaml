@@ -161,6 +161,11 @@ flutter:
     - assets/images/visa.png
     - assets/images/mastercard.png
     - assets/images/paypal.png
+    - assets/images/notify.png
+    - assets/images/addAdventure.jpg
+    - assets/images/addCourse.jpg
+    - assets/images/corporate.jpg
+    - assets/images/cyclists.jpg
 
 
 #    - assets/tessdata_config.json

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:untitled/NewScreensUI/Information&PermissionsUI.dart';
-import 'package:untitled/NewScreensUI/ManageMyAdventuresUI.dart';
-import 'package:untitled/NewScreensUI/MyAdventuresUI.dart';
-import 'package:untitled/NewScreensUI/PaymentMethodUI.dart';
-import 'package:untitled/NewScreensUI/Terms&ConditionsUI.dart';
-import 'package:untitled/NewScreensUI/UserFeedbackUI.dart';
-import 'package:untitled/NewScreensUI/UserProfileUI.dart';
+import 'package:untitled/CustomerScreensUI/ContactUsUI.dart';
+import 'package:untitled/CustomerScreensUI/Information&PermissionsUI.dart';
+import 'package:untitled/CustomerScreensUI/ManageMyAdventuresUI.dart';
+import 'package:untitled/CustomerScreensUI/MyAdventuresUI.dart';
+import 'package:untitled/CustomerScreensUI/PaymentMethodUI.dart';
+import 'package:untitled/CustomerScreensUI/Terms&ConditionSettingsUI.dart';
+import 'package:untitled/CustomerScreensUI/Terms&ConditionsUI.dart';
+import 'package:untitled/CustomerScreensUI/UserFeedbackUI.dart';
+import 'package:untitled/CustomerScreensUI/UserProfileUI.dart';
+//import 'package:untitled/NewScreensUI/Terms&ConditionSettingsUI.dart';
 import 'package:untitled/components/CustomAlertUI.dart';
 
 void main() {
@@ -25,8 +28,10 @@ class UserProfileApp extends StatelessWidget {
   }
 }
 
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
@@ -256,10 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     onTap: () {
                       // Handle terms & conditions action
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  TermsAndConditionsApp()),
-                      );
+                      Navigator.push(  context,  MaterialPageRoute(builder: (context) =>  TermsAndConditionsScreenSettings()), );
                     },
                   ),
                   const Divider(),
@@ -279,6 +281,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     onTap: () {
                       // Handle contact us action
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  ContactScreen( )),
+                      );
+
+
                     },
                   ),
                 ],

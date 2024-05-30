@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/NewScreensUI/SettingsScreenUI.dart';
+import 'package:untitled/CustomerScreensUI/SettingsScreenUI.dart';
 import 'package:untitled/components/CustomAlertUI.dart';
 import 'package:untitled/components/buttonsUI.dart';
 
